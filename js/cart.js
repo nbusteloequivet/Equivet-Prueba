@@ -104,6 +104,7 @@ function prepareOrder() {
   const items = Object.values(cart);
   const nombre = els.cartNombre.value.trim();
   const apellido = els.cartApellido.value.trim();
+  const entidad = els.cartEntidad.value.trim();
   const whatsapp = els.cartWhatsapp.value.trim();
   const email = els.cartEmail.value.trim();
   const mensaje = els.cartMensaje.value.trim();
@@ -135,16 +136,17 @@ function prepareOrder() {
     showCartStatus("El WhatsApp no parece válido — revisalo antes de enviar.", "error");
     return null;
   }
-  // Entidad es opcional — no bloquea el envío.
+  // Apellido y Entidad son opcionales — no bloquean el envío.
 
   // ID simple para poder agrupar en la planilla todas las filas que
-  // pertenecen a este mismo pedido (un timestamp alcanza: es único y
-  // además queda ordenable cronológicamente sin ningún esfuerzo extra).
+  // pertenecen a este mismo pedido. Ya no lo usa el servidor para
+  // numerar (Código.gs asigna su propio ID secuencial desde la Fase A),
+  // pero se sigue mandando por compatibilidad — no molesta que viaje.
   const orderId = String(Date.now());
 
-  const message = buildOrderMessage({ nombre, apellido, whatsapp, email, mensaje, items });
+  const message = buildOrderMessage({ nombre, apellido, entidad, whatsapp, email, mensaje, items });
 
-  return { orderId, nombre, apellido, whatsapp, email, mensaje, items, message };
+  return { orderId, nombre, apellido, entidad, whatsapp, email, mensaje, items, message };
 }
 
 function isAndroidDevice() {
@@ -270,12 +272,12 @@ async function sendOrder() {
   showCartStatus("No pudimos enviarlo automáticamente — se abrió Gmail con tu pedido cargado. Revisalo y tocá enviar desde ahí.", "error");
 }
 
-function buildOrderMessage({ nombre, apellido, whatsapp, email, mensaje, items }) {
+function buildOrderMessage({ nombre, apellido, entidad, whatsapp, email, mensaje, items }) {
   const lines = [];
   lines.push(`Pedido - ${CONFIG.LAB_NAME}`);
   lines.push("");
-  lines.push(`Cliente: ${nombre}`);
-  if (apellido) lines.push(`Entidad: ${apellido}`);
+  lines.push(`Cliente: ${nombre}${apellido ? " " + apellido : ""}`);
+  if (entidad) lines.push(`Entidad: ${entidad}`);
   lines.push(`WhatsApp: ${whatsapp}`);
   lines.push(`Email: ${email}`);
   lines.push("");
@@ -341,7 +343,8 @@ async function submitOrderToServer(order) {
     honeypot: els.cartHoneypot ? els.cartHoneypot.value.trim() : "",
     orderId: order.orderId,
     nombre: order.nombre,
-    entidad: order.apellido, // "apellido" es en realidad el campo Entidad del formulario
+    apellido: order.apellido,
+    entidad: order.entidad,
     whatsapp: order.whatsapp,
     email: order.email,
     mensaje: order.mensaje,
