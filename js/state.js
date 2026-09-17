@@ -1,47 +1,29 @@
 /* =========================================================================
    STATE.JS — Estado compartido en memoria de toda la aplicación.
-   Es deliberadamente simple hoy (variables sueltas). El día que la página
-   necesite hablar con una base de datos o una API propia, este es el
-   archivo que se reemplazaría por un manejo de estado más robusto (o por
-   datos que vengan directamente de la respuesta de esa API), sin tener
-   que tocar ui.js ni cart.js.
    ========================================================================= */
 
-// Todos los productos ya normalizados, tal como vienen de data.js
 let allProducts = [];
 
-// Filtros activos de la grilla
 let activeCategory = null;
 let activeLab = null;
 let activeSubcategory = null;
 let searchTerm = "";
 
-// Color asignado a cada categoría (se arma en ui.js, buildCategoryChips)
 let categoryColorMap = {};
 
-// Nombres de producto que se repiten en más de un producto del catálogo
-// (mismo nombre, distinto laboratorio: son 2 tarjetas a propósito). Se
-// recalcula en data.js, computeDuplicateNames(), cada vez que se carga el
-// catálogo. ui.js lo usa para mostrar el laboratorio en la tarjeta chica
-// SOLO en estos casos puntuales, donde es lo único que distingue a un
-// producto del otro sin entrar al detalle.
 let duplicateProductNames = new Set();
 
-// El carrito/pedido: { claveDelProducto: { product, qty } }
 let cart = {};
 
-// Referencias a los "En tu pedido: N" de cada tarjeta, para actualizarlos
-// sin reconstruir toda la grilla cada vez que cambia el carrito.
 let cartIndicatorEls = {};
 
-// Referencias a los botones "Agregar/Agregado/Modificar/Modificado" de
-// cada tarjeta, para poder devolverlos a su estado inicial cuando el
-// producto se saca del carrito desde otro lado (el ✕ del carrito, o
-// "Vaciar pedido") sin reconstruir toda la grilla. Mismo patrón que
-// cartIndicatorEls de arriba.
 let addButtonEls = {};
 
-// Cache de elementos del DOM (se completa una sola vez en main.js)
+// Sesión del cliente logueado — null si nadie inició sesión. Se llena al
+// cargar la página (si había una sesión guardada del navegador, ver
+// account.js) o al loguearse con éxito: { token, nombre, apellido }.
+let session = null;
+
 const els = {};
 
 function cacheElements() {
@@ -93,7 +75,6 @@ function cacheElements() {
   els.contactMapLink = document.getElementById("contact-map-link");
   els.contactMapIframe = document.getElementById("contact-map-iframe");
 
-  // ---- Cuenta (login / registro / historial) — Fase D ----
   els.accountFab = document.getElementById("account-fab");
   els.accountModal = document.getElementById("account-modal");
   els.accountTitle = document.getElementById("account-title");
