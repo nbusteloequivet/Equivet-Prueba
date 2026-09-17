@@ -37,7 +37,31 @@ a { color: var(--accent); }
   border-bottom: 2px solid var(--ink);
   /* Sin "position: sticky" — el header se desplaza con el resto de la
      página en vez de quedar fijo a mitad de pantalla. */
+  /* "relative" para poder anclar el link de cuenta (.account-corner-btn)
+     en la esquina superior derecha sin afectar el resto del layout, que
+     sigue centrado como siempre. */
+  position: relative;
 }
+
+/* Link de "Iniciar sesión" / cuenta — esquina superior derecha, texto
+   simple sin caja ni sombra, a propósito discreto: no es un botón de
+   acción principal como "Mi presupuesto", es un acceso secundario. */
+.account-corner-btn {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px 4px;
+  z-index: 5;
+}
+.account-corner-btn:hover { text-decoration: underline; }
+.account-corner-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .header-inner {
   max-width: 1320px;
@@ -671,7 +695,7 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   padding: 0 4px;
 }
 
-/* ---------- Modal genérico (detalle de producto y carrito comparten esta base) ---------- */
+/* ---------- Modal genérico (detalle de producto, carrito y cuenta comparten esta base) ---------- */
 
 .modal-overlay {
   position: fixed;
@@ -913,6 +937,49 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 .btn-secondary { background: var(--paper); color: var(--ink); }
 .btn-secondary:hover { background: var(--line); }
 
+/* ---------- Modal de cuenta (login / registro / verificar / logueado) ----------
+   Reutiliza .modal-overlay/.modal-content/.cart-status/.btn-provider/
+   .btn-secondary tal cual ya existen — solo se agrega lo que es distinto:
+   el ancho más angosto (es un form de 2-4 campos, no un carrito), y
+   .account-fields en vez de .cart-form para los inputs, porque
+   .cart-form arranca con una línea divisoria arriba (border-top) que acá
+   no tiene sentido al ser el primer bloque del modal. */
+.account-modal-content { max-width: 420px; }
+
+.account-modal-inner { padding: 34px 30px 28px; display: flex; flex-direction: column; gap: 16px; }
+.account-modal-inner h2 { font-family: var(--font-display); font-size: 22px; margin: 0; text-align: center; }
+.account-modal-inner > div { display: flex; flex-direction: column; gap: 14px; }
+
+.account-fields { display: flex; flex-direction: column; gap: 10px; }
+.account-fields label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+.account-fields input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  font-weight: 400;
+}
+.account-fields input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.account-switch {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 /* ---------- Responsive general ---------- */
 
 @media (max-width: 560px) {
@@ -928,6 +995,7 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   .brand-emblem img { height: 130px; }
   .fab-stack { right: 14px; bottom: 14px; gap: 8px; }
   .fab { padding: 10px 16px; font-size: 12.5px; }
+  .account-corner-btn { top: 10px; right: 14px; font-size: 11.5px; }
 
   /* El selector de cantidad + "Agregar" pasan a ir uno debajo del otro
      (en vez de lado a lado) porque en 2 columnas cada tarjeta queda
@@ -954,6 +1022,8 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   .cart-modal-inner h2 { font-size: 19px; }
   .cart-form { gap: 8px; padding-top: 12px; }
   .cart-send { padding-top: 12px; }
+  .account-modal-inner { padding: 20px 16px 18px; gap: 12px; }
+  .account-modal-inner h2 { font-size: 18px; }
 }
 
 @media (max-width: 380px) {
