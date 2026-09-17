@@ -75,6 +75,15 @@
 <body>
 
 <header class="site-header">
+  <!-- Link de cuenta: esquina superior derecha, discreto a propósito —
+       no es un tercer botón flotante, para no recargar la esquina donde
+       ya viven "Mi presupuesto" y "Contacto". Todavía no hace nada al
+       tocarlo (eso llega en la Fase D.2/D.3/D.4) — por ahora solo abre
+       el modal vacío de comportamiento. -->
+  <button id="account-fab" class="account-corner-btn" type="button" aria-haspopup="dialog">
+    Iniciar sesión
+  </button>
+
   <div class="header-inner">
     <div class="brand">
       <h1 id="lab-name">EquiVet — Laboratorio de Reproducción Equina, Los Cardales</h1>
@@ -216,11 +225,14 @@
 
       <div class="cart-form">
         <h3>Tus datos de contacto</h3>
-        <label>Nombre y Apellido*
+        <label>Nombre*
           <input id="cart-nombre" type="text" autocomplete="given-name">
         </label>
-        <label>Entidad (si corresponde)
+        <label>Apellido
           <input id="cart-apellido" type="text" autocomplete="family-name">
+        </label>
+        <label>Entidad (si corresponde)
+          <input id="cart-entidad" type="text" autocomplete="organization">
         </label>
         <label>WhatsApp*
           <input id="cart-whatsapp" type="tel" placeholder="+54 9 11 1234-5678" autocomplete="tel">
@@ -254,6 +266,62 @@
 
       <div class="cart-actions">
         <button id="clear-cart-btn" class="btn-secondary" type="button">Vaciar pedido</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de cuenta: login / registro / verificación / sesión iniciada.
+     Las 4 "vistas" son divs que se muestran/ocultan por JS (Fase D.3/D.4)
+     — todavía no tienen ningún comportamiento conectado, es solo la
+     estructura. La vista visible por defecto es "login". -->
+<div id="account-modal" class="modal-overlay" hidden>
+  <div class="modal-content account-modal-content" role="dialog" aria-modal="true" aria-labelledby="account-title">
+    <button class="modal-close" data-close-modal="account-modal" aria-label="Cerrar">✕</button>
+    <div class="account-modal-inner">
+      <h2 id="account-title">Iniciar sesión</h2>
+
+      <div id="account-view-login">
+        <div class="account-fields">
+          <label>Email
+            <input id="login-email" type="email" autocomplete="email">
+          </label>
+          <label>Contraseña
+            <input id="login-password" type="password" autocomplete="current-password">
+          </label>
+        </div>
+        <div id="login-status" class="cart-status" hidden></div>
+        <button id="login-submit-btn" class="btn-provider" type="button">Iniciar sesión</button>
+        <p class="account-switch">¿No tenés cuenta? <button id="show-registro-btn" class="link-btn" type="button">Creá una</button></p>
+      </div>
+
+      <div id="account-view-registro" hidden>
+        <div class="account-fields">
+          <label>Nombre
+            <input id="registro-nombre" type="text" autocomplete="given-name">
+          </label>
+          <label>Apellido
+            <input id="registro-apellido" type="text" autocomplete="family-name">
+          </label>
+          <label>Email
+            <input id="registro-email" type="email" autocomplete="email">
+          </label>
+          <label>Contraseña
+            <input id="registro-password" type="password" autocomplete="new-password">
+          </label>
+        </div>
+        <div id="registro-status" class="cart-status" hidden></div>
+        <button id="registro-submit-btn" class="btn-provider" type="button">Crear cuenta</button>
+        <p class="account-switch">¿Ya tenés cuenta? <button id="show-login-btn" class="link-btn" type="button">Iniciá sesión</button></p>
+      </div>
+
+      <div id="account-view-verificar" hidden>
+        <p>Te mandamos un mail para activar tu cuenta. Una vez que lo confirmes, ya podés iniciar sesión.</p>
+      </div>
+
+      <div id="account-view-logged" hidden>
+        <p>Hola, <span id="account-greeting-name"></span>.</p>
+        <button id="account-logout-btn" class="btn-secondary" type="button">Cerrar sesión</button>
       </div>
     </div>
   </div>
