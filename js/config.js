@@ -6,7 +6,7 @@
    ========================================================================= */
 const CONFIG = {
   // URL del CSV publicado (Archivo > Compartir > Publicar en la Web > CSV)
-  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQC4BFXcTT1kYiQALcRtU2X4EkKqAbXc1tf0hfLzsaZbofK_AaDVn6X6Nj9Vlx-6ld484FGk1VHG1Y2/pub?gid=0&single=true&output=csv",
+  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ1EAro0mIlQv0ZrBowQKgHW5mdKcWYAB_D_DV19GgCIYsP5ZHYyVJtFkBS--bNin_5Uv0MRWVitgzv/pubhtml?gid=0&single=true",
 
   // Nombre y bajada que se muestran arriba de todo, centrados
   LAB_NAME: "EquiVet",
@@ -66,14 +66,14 @@ const CONFIG = {
   // presupuesto, el mismo Apps Script guarda el pedido en la planilla Y
   // manda el mail de notificación — ya no lo hace el navegador del
   // cliente (ver cart.js).
-  ORDERS_SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbw8JuMEaM_TM05gSieTi-f3Y79FRBawLZs-c4qLSulRhdQQpPYLzFu6IdXHwsuDTRYseA/exec",
+  ORDERS_SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyncbNu1W50XOumkoIPs1A3Pu-GxBWvZ1phVKOBxihWI_n_aN5j0LLL8S1SBVgGK7aO7w/exec",
 
   // Tiene que ser IDÉNTICO al valor de SITE_TOKEN en el Apps Script
   // (Código.gs). No reemplaza una autenticación real — es un filtro
   // contra quien encuentre la URL de arriba "de casualidad" sin conocer
   // la forma exacta del pedido. Si algún día sospechás abuso, cambiá
   // este valor Y el del script a la vez.
-  SITE_TOKEN: "1c7e2b5dc670c3cb81aa065924075f322e5bc502",
+  SITE_TOKEN: "89a6fbec9e685b4f95f76a2ba823f6f1c58c55dd",
 };
 
 /* Colores para distinguir categorías a simple vista (franja + chip activo). */
