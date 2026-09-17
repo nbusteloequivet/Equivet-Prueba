@@ -6,29 +6,12 @@
 
 <title>Equivet - Veterinaria</title>
 
-<!-- Ícono de la pestaña del navegador. Los archivos van en assets/,
-     junto al logo. favicon.ico es para navegadores viejos; los .png de
-     distintos tamaños son para pestaña, marcadores y accesos directos en
-     el celular (apple-touch-icon es específico para "agregar a inicio"
-     en iPhone). -->
-<!-- MODO PRUEBA: una sola línea, apuntando a la imagen tal cual la
-     subiste, sin ningún procesamiento — para ver cómo la muestra el
-     navegador de verdad antes de armar las versiones optimizadas por
-     tamaño. Cuando estés conforme con cuál imagen usar, avisame y
-     armamos la versión final con los tamaños prolijos (este comentario
-     y la línea de abajo se reemplazan en ese momento). -->
 <link rel="icon" href="assets/favicon-prueba.jpg">
 <meta name="description" content="EquiVet es un laboratorio especializado en reproducción equina en Los Cardales, Buenos Aires. Consultá nuestro catálogo de productos y pedí tu cotización online.">
 <link rel="canonical" href="https://equivet.ar/">
 
-<!-- Si algún recurso llegara a referenciarse por error con "http://" en
-     vez de "https://", el navegador lo sube solo a https antes de
-     pedirlo. No restringe nada de lo que ya funciona (no bloquea
-     cdnjs, Google Fonts, Drive, Maps ni el Apps Script) — es una red de
-     seguridad extra, sin riesgo de romper nada existente. -->
 <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
-<!-- Open Graph: cómo se ve el link al compartirlo en WhatsApp, Instagram, etc. -->
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_AR">
 <meta property="og:title" content="EquiVet — Laboratorio de Reproducción Equina">
@@ -36,13 +19,6 @@
 <meta property="og:url" content="https://equivet.ar/">
 <meta property="og:image" content="https://equivet.ar/assets/logo-equivet.jpg">
 
-<!-- Datos estructurados: le dicen a Google explícitamente qué es la
-     empresa, dónde está y cómo contactarla (nombre, dirección, teléfono,
-     horarios, redes). Esto es lo que puede hacer que aparezcan la
-     dirección/teléfono directo en el resultado de búsqueda. NO garantiza
-     una posición — ver la explicación en el chat. Si cambiás estos datos
-     en js/config.js más adelante, actualizalos también acá para que no
-     queden desincronizados. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -75,11 +51,6 @@
 <body>
 
 <header class="site-header">
-  <!-- Link de cuenta: esquina superior derecha, discreto a propósito —
-       no es un tercer botón flotante, para no recargar la esquina donde
-       ya viven "Mi presupuesto" y "Contacto". Todavía no hace nada al
-       tocarlo (eso llega en la Fase D.2/D.3/D.4) — por ahora solo abre
-       el modal vacío de comportamiento. -->
   <button id="account-fab" class="account-corner-btn" type="button" aria-haspopup="dialog">
     Iniciar sesión
   </button>
@@ -94,17 +65,6 @@
     </div>
   </div>
 
-  <!-- Cartel de bienvenida con los pasos para usar la página — a
-       propósito arriba de todo, antes del buscador, para que sea lo
-       primero que lee el cliente al entrar.
-
-       Usa <details>/<summary> nativo del HTML en vez de un div + JS
-       propio: el navegador ya sabe abrir/cerrar esto solo con un
-       toque/click, tanto en computadora como en iPhone y Android, sin
-       que haya que escribir ni un evento. El triangulito que el
-       navegador dibuja solo al lado de "Metodología..." se saca a
-       propósito en el CSS (.how-to-use-summary) — se pidió sin ningún
-       indicador visual, solo el texto. -->
   <div class="how-to-use-wrap">
     <details class="how-to-use-banner">
       <summary class="how-to-use-summary">Metodología de uso de la página</summary>
@@ -148,17 +108,10 @@
     <p>No hay productos que coincidan con la búsqueda.</p>
   </div>
 
-  <!-- Aviso temporal: se muestra/oculta con CONFIG.SHOW_LOADING_BANNER en
-       js/config.js (nada que tocar acá ni en el CSS). Cuando ya esté
-       cargado el catálogo completo, alcanza con poner ese valor en false.
-       A propósito va DESPUÉS de la grilla (no en el header): así el
-       cliente ve primero los productos y recién al final, antes de
-       Contacto, el aviso de que puede faltar alguno. -->
   <div id="loading-products-banner" class="loading-products-banner" hidden>
     <p>Estamos cargando productos en la página. Si algún producto falta, escribinos el producto y la cantidad que requerís en la casilla "Mensaje adicional" en el apartado "Mi presupuesto". Disculpe las molestias.</p>
   </div>
 
-  <!-- Datos de contacto de la empresa, al final del catálogo -->
   <section id="company-contact" class="company-contact">
     <h2 class="company-contact-title">Contacto</h2>
     <div class="company-contact-grid">
@@ -194,7 +147,6 @@
   </section>
 </main>
 
-<!-- Botones flotantes: Mi presupuesto y Contacto (baja a la sección de contacto) -->
 <div class="fab-stack">
   <button id="cart-fab" class="fab fab-primary" type="button" aria-haspopup="dialog">
     Mi presupuesto
@@ -205,7 +157,6 @@
   </button>
 </div>
 
-<!-- Modal de detalle de un producto -->
 <div id="product-modal" class="modal-overlay" hidden>
   <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <button class="modal-close" data-close-modal="product-modal" aria-label="Cerrar">✕</button>
@@ -213,7 +164,6 @@
   </div>
 </div>
 
-<!-- Modal del carrito / pedido -->
 <div id="cart-modal" class="modal-overlay" hidden>
   <div class="modal-content cart-modal-content" role="dialog" aria-modal="true" aria-labelledby="cart-title">
     <button class="modal-close" data-close-modal="cart-modal" aria-label="Cerrar">✕</button>
@@ -244,14 +194,6 @@
           <textarea id="cart-mensaje" rows="3" placeholder="si algún producto no lo encontraste en el catalogo, por favor detallanos en tu mensaje y te ponemos el producto o alternativa"></textarea>
         </label>
 
-        <!-- Campo trampa anti-spam: invisible para un cliente real (ver
-             .honeypot-field en style.css). Algunos bots que completan
-             formularios automáticamente lo llenan igual — si llega
-             completo, el pedido se descarta en el Apps Script sin
-             procesarse. No lleva type="hidden" a propósito: los bots más
-             básicos lo saltean si lo detectan así. tabindex="-1" y
-             aria-hidden lo sacan de la navegación por teclado y de
-             lectores de pantalla, para no molestar a nadie real. -->
         <label class="honeypot-field" aria-hidden="true">
           Sitio web
           <input id="cart-honeypot" type="text" tabindex="-1" autocomplete="off">
@@ -271,10 +213,6 @@
   </div>
 </div>
 
-<!-- Modal de cuenta: login / registro / verificación / sesión iniciada.
-     Las 4 "vistas" son divs que se muestran/ocultan por JS (Fase D.3/D.4)
-     — todavía no tienen ningún comportamiento conectado, es solo la
-     estructura. La vista visible por defecto es "login". -->
 <div id="account-modal" class="modal-overlay" hidden>
   <div class="modal-content account-modal-content" role="dialog" aria-modal="true" aria-labelledby="account-title">
     <button class="modal-close" data-close-modal="account-modal" aria-label="Cerrar">✕</button>
@@ -332,6 +270,7 @@
 <script src="js/state.js"></script>
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/account.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
 </body>
