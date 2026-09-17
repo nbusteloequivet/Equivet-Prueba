@@ -43,10 +43,6 @@ function buildCategoryChips() {
   })));
 }
 
-// Se llama cada vez que se elige una categoría (o "Todas"). Si esa
-// categoría tiene más de una subcategoría entre los productos cargados,
-// arma y muestra su panel de subcategorías (mismo estilo de chip); si no
-// tiene, o se eligió "Todas", oculta ese panel.
 function updateSubcategoryChips(category) {
   const subcats = category
     ? [...new Set(allProducts.filter((p) => p.categories.includes(category)).flatMap((p) => p.subcategories))].sort()
@@ -59,8 +55,6 @@ function updateSubcategoryChips(category) {
     return;
   }
 
-  // Si veníamos filtrando por una subcategoría que no pertenece a la
-  // categoría recién elegida, se descarta.
   if (activeSubcategory && !subcats.includes(activeSubcategory)) {
     activeSubcategory = null;
   }
@@ -83,9 +77,6 @@ function renderSubcategoryChips(subcats) {
   })));
 }
 
-// Mismo patrón que buildCategoryChips, pero agrupando por laboratorio en
-// vez de categoría. Usa el mismo estilo de chip (.chip / .category-chips)
-// para que se vea exactamente igual.
 function buildLabChips() {
   const labs = [...new Set(allProducts.map((p) => p.lab).filter(Boolean))].sort();
 
@@ -102,10 +93,6 @@ function buildLabChips() {
   })));
 }
 
-// Genérico: arma un botón "chip". onSelect recibe el valor elegido (o
-// null para "Todas/Todos") y decide qué hacer — así lo puede reutilizar
-// cualquier filtro (categoría, laboratorio, o el que se agregue a futuro)
-// sin duplicar el diseño del botón.
 function makeChip(label, value, activeValue, onSelect) {
   const chip = document.createElement("button");
   chip.className = "chip" + (activeValue === value ? " active" : "");
@@ -117,17 +104,11 @@ function makeChip(label, value, activeValue, onSelect) {
 
 /* ------------------------------------------------------------------------
    Desplegables de filtro (Categorías / Laboratorios)
-   Cada botón "toggle" muestra/oculta su propio panel de chips. Los dos
-   son independientes: se puede tener uno, el otro, los dos, o ninguno
-   abierto a la vez.
    ------------------------------------------------------------------------ */
 function setupFilterToggles() {
   setupFilterToggle(els.categoryToggle, els.categoryChips);
   setupFilterToggle(els.labToggle, els.labChips);
 
-  // Al cerrar "Categorías", si había un panel de subcategorías abierto
-  // (anidado adentro), se oculta también — el filtro elegido se mantiene,
-  // solo deja de verse hasta que se vuelva a abrir "Categorías".
   els.categoryToggle.addEventListener("click", () => {
     if (els.categoryToggle.getAttribute("aria-expanded") !== "true") {
       els.subcategoryChips.hidden = true;
@@ -161,8 +142,6 @@ function renderGrid() {
     if (activeSubcategory && !p.subcategories.includes(activeSubcategory)) return false;
     if (activeLab && p.lab !== activeLab) return false;
     if (searchTerm) {
-      // El código sigue siendo buscable (útil si alguien lo tipea de
-      // memoria) aunque nunca se muestre en la tarjeta.
       const haystack = `${p.name} ${p.categories.join(" ")} ${p.subcategories.join(" ")} ${p.code} ${p.lab}`.toLowerCase();
       if (!haystack.includes(searchTerm)) return false;
     }
@@ -184,18 +163,12 @@ function renderGrid() {
   els.grid.appendChild(fragment);
 }
  
-// Si no se completó la columna "disponibilidad" para este producto
-// (null), no mostramos ningún cartel — es preferible no decir nada a
-// arriesgarnos a mostrar "En stock" de algo que en realidad no se sabe.
 function availabilityTagHtml(p) {
   if (!p.availability) return "";
   const cls = p.availability === "En stock" ? "in" : "out";
   return `<span class="avail-tag ${cls}">${escapeHtml(p.availability)}</span>`;
 }
  
-// Nota: el producto trae "code" (p.code) pero deliberadamente no se
-// renderiza en ningún lado de la tarjeta ni del modal — el cliente no debe
-// verlo en pantalla. Sigue viajando en el mail de la cotización (cart.js).
 function buildCard(p) {
   const key = productKey(p);
  
@@ -204,9 +177,6 @@ function buildCard(p) {
  
   const strip = document.createElement("div");
   strip.className = "card-strip";
-  // Si el producto tiene más de una categoría, la franja usa el color de
-  // la primera (es solo una referencia visual rápida, no hace falta que
-  // represente las dos a la vez).
   strip.style.background = categoryColorMap[p.categories[0]] || CATEGORY_COLORS[0];
   card.appendChild(strip);
  
@@ -218,25 +188,11 @@ function buildCard(p) {
  
   const body = document.createElement("div");
   body.className = "card-body";
-  // El renglón de laboratorio se imprime SIEMPRE (aunque quede vacío) para
-  // que la altura de la tarjeta no varíe según el producto — si solo lo
-  // agregáramos cuando corresponde, esas tarjetas puntuales quedarían más
-  // altas que el resto de la grilla.
   const showLab = Boolean(p.lab) && duplicateProductNames.has(normalizeNameForCompare(p.name));
 
-  // Una categoría/subcategoría por renglón (en vez de todas juntas
-  // separadas por coma en un solo renglón) — con 2 o más queda mucho más
-  // legible. Cada <span> es un hijo directo de .card-body (flex-column),
-  // así que cada uno cae en su propia línea solo.
   const categoryHtml = p.categories.map((c) => `<span class="card-category">${escapeHtml(c)}</span>`).join("");
   const subcategoryHtml = p.subcategories.map((s) => `<span class="card-subcategory">${escapeHtml(s)}</span>`).join("");
 
-  // ".card-bottom" agrupa la línea divisoria + "En stock" + selector de
-  // cantidad + "Agregar" en un solo bloque anclado siempre al FONDO de la
-  // tarjeta (margin-top: auto en style.css), sin importar cuánto texto
-  // haya arriba (nombre, categorías, subcategorías, laboratorio). Así la
-  // línea divisoria queda siempre a la misma altura en toda la fila de la
-  // grilla, tenga el producto 1 categoría o 3.
   body.innerHTML = `
     <h3 class="card-title">${escapeHtml(p.name)}</h3>
     ${categoryHtml}
@@ -258,37 +214,22 @@ function buildCard(p) {
   return card;
 }
  
-// Estado "pendiente" del botón: "Agregar" si el producto todavía no está
-// en el pedido, "Modificar" si ya está (el cliente está por cambiar la
-// cantidad de algo que ya había agregado). Se usa tanto al construir la
-// tarjeta como cada vez que hay que volver atrás desde "Agregado" o
-// "Modificado" (porque el cliente tocó +/-, escribió una cantidad nueva,
-// o el producto se sacó del pedido desde otro lado).
 function setAddButtonIdle(btn, key) {
   btn.classList.remove("is-done");
   btn.textContent = cart[key] ? "Modificar" : "Agregar";
 }
 
-// Estado "confirmado": "Agregado" la primera vez que el producto entra al
-// pedido, "Modificado" las veces siguientes que se confirma un cambio de
-// cantidad sobre un producto que ya estaba — mismo color en los dos
-// casos, como pediste.
 function setAddButtonDone(btn, wasInCart) {
   btn.classList.add("is-done");
   btn.textContent = wasInCart ? "Modificado" : "Agregado";
 }
 
-// Se llama desde cart.js cuando el producto se saca del pedido por otra
-// vía que no sea este mismo botón (el ✕ del carrito, o "Vaciar pedido"),
-// para que la tarjeta no se quede mostrando "Agregado"/"Modificado" de un
-// producto que en realidad ya no está en el pedido.
 function resetAddButton(key) {
   const btn = addButtonEls[key];
   if (!btn) return;
   setAddButtonIdle(btn, key);
 }
 
-// Controles de cantidad + botón "Agregar" (reutilizados en tarjeta y modal)
 function buildCartRow(p, key) {
   const wrapper = document.createElement("div");
   wrapper.className = "card-cart-row";
@@ -320,12 +261,8 @@ function buildCartRow(p, key) {
   const addBtn = document.createElement("button");
   addBtn.type = "button";
   addBtn.className = "add-btn";
-  setAddButtonIdle(addBtn, key); // "Agregar" si es nuevo, "Modificar" si ya estaba en el pedido
+  setAddButtonIdle(addBtn, key);
 
-  // Cada vez que el cliente toca +/- o escribe una cantidad nueva, si el
-  // botón estaba mostrando "Agregado"/"Modificado" (un cambio ya
-  // confirmado), vuelve a pedir confirmación con "Modificar" — ese
-  // cambio todavía no se mandó al pedido hasta que lo vuelva a tocar.
   const onQtyChanged = () => {
     if (addBtn.classList.contains("is-done")) setAddButtonIdle(addBtn, key);
   };
@@ -346,8 +283,6 @@ function buildCartRow(p, key) {
   addBtn.addEventListener("click", stopBubble(() => {
     const qty = safeInt(qtyInput.value);
     if (qty <= 0) {
-      // removeFromCart ya deja el botón en "Agregar" (ver resetAddButton
-      // en cart.js) — no hace falta tocarlo de nuevo acá.
       removeFromCart(key);
     } else {
       const wasInCart = Boolean(cart[key]);
@@ -451,7 +386,10 @@ function setupModalClosers() {
   document.querySelectorAll("[data-close-modal]").forEach((btn) => {
     btn.addEventListener("click", () => closeModalEl(document.getElementById(btn.dataset.closeModal)));
   });
-  [els.productModal, els.cartModal].forEach((overlay) => {
+  // Se agregó accountModal a esta lista y a la de Escape más abajo — sin
+  // esto, el botón ✕ del modal de cuenta cerraba bien (usa
+  // data-close-modal, ver arriba) pero tocar afuera o Escape no.
+  [els.productModal, els.cartModal, els.accountModal].forEach((overlay) => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) closeModalEl(overlay);
     });
@@ -459,6 +397,7 @@ function setupModalClosers() {
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (!els.cartModal.hidden) closeModalEl(els.cartModal);
+    else if (!els.accountModal.hidden) closeModalEl(els.accountModal);
     else if (!els.productModal.hidden) closeModalEl(els.productModal);
   });
 }
@@ -470,8 +409,6 @@ function setupCartModal() {
   els.cartFab.addEventListener("click", () => {
     renderCartModal();
     openModalEl(els.cartModal);
-    // El modal recién ahora es visible de verdad — recién ahora se puede
-    // medir su alto correctamente (ver el comentario en autoGrowTextarea).
     autoGrowTextarea(els.cartMensaje);
   });
  
@@ -491,8 +428,6 @@ function renderCartModal() {
   items.forEach(([key, entry]) => {
     const row = document.createElement("div");
     row.className = "cart-item";
-    // Acá tampoco se muestra el código: la referencia visible para el
-    // cliente es la categoría (o subcategoría, si tiene).
     const metaText = entry.product.subcategories.length
       ? entry.product.subcategories.join(", ")
       : entry.product.categories.join(", ");
@@ -541,22 +476,6 @@ function hideCartStatus() {
   els.cartStatus.hidden = true;
 }
  
-/* ------------------------------------------------------------------------
-   Textarea de "Mensaje adicional": crece solo hacia abajo a medida que el
-   cliente escribe (en vez de dejarlo arrastrar la esquina a mano, que
-   quedaba raro — ver el resize:none puesto en style.css). No tiene techo:
-   por más que escriba mucho, el cuadro sigue agrandándose sin cortar
-   texto ni mostrar scroll interno.
-
-   OJO con un detalle importante: esto NO se puede calcular bien mientras
-   el modal del carrito está oculto — un elemento escondido (display:none,
-   que es lo que pone el atributo "hidden" del modal) siempre mide alto 0,
-   así que si se calculara en ese momento el cuadro quedaría con altura 0
-   pegada para siempre (eso fue el bug: el texto de adentro se veía
-   cortado). Por eso acá SOLO se engancha el recálculo a medida que se
-   escribe — el recálculo inicial, con el modal ya visible de verdad, se
-   dispara aparte desde setupCartModal() cada vez que se abre el modal.
-   ------------------------------------------------------------------------ */
 function autoGrowTextarea(textareaEl) {
   textareaEl.style.height = "auto";
   textareaEl.style.height = textareaEl.scrollHeight + "px";
@@ -567,7 +486,7 @@ function setupAutoGrowTextarea(textareaEl) {
 }
 
 /* ------------------------------------------------------------------------
-   Botón "Contacto": baja a la sección de contacto al final de la página.
+   Botón "Contacto"
    ------------------------------------------------------------------------ */
 function setupContactFab() {
   els.contactFab.addEventListener("click", () => {
@@ -576,7 +495,7 @@ function setupContactFab() {
 }
  
 /* ------------------------------------------------------------------------
-   Contacto de la empresa (Instagram, WhatsApp, email, horarios y mapa)
+   Contacto de la empresa
    ------------------------------------------------------------------------ */
 function setupCompanyContact() {
   els.contactInstagram.href = CONFIG.COMPANY_INSTAGRAM_URL;
@@ -595,8 +514,6 @@ function setupCompanyContact() {
   els.contactHoursValue.textContent = CONFIG.COMPANY_HOURS;
  
   els.contactAddressValue.textContent = CONFIG.COMPANY_ADDRESS;
-  // Ojo: acá se usa COMPANY_MAP_QUERY (coordenadas), no COMPANY_ADDRESS
-  // (texto) — es lo que evita que aparezcan varias ubicaciones posibles.
   const encodedQuery = encodeURIComponent(CONFIG.COMPANY_MAP_QUERY);
   els.contactMapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
   els.contactMapIframe.src = `https://www.google.com/maps?q=${encodedQuery}&output=embed`;
@@ -612,4 +529,64 @@ function showStatus(msg, type) {
 }
 function hideStatus() {
   els.statusBanner.hidden = true;
+}
+
+/* ------------------------------------------------------------------------
+   Modal de cuenta — cambia entre las 4 "vistas" (login, registro,
+   verificar, logueado) mostrando una y ocultando las otras 3. La lógica
+   de login/registro/logout en sí vive en account.js; acá solo se conecta
+   con los botones y se decide qué mostrar.
+   ------------------------------------------------------------------------ */
+function showAccountStatus(el, msg, type) {
+  el.hidden = false;
+  el.textContent = msg;
+  el.className = "cart-status " + type;
+}
+function hideAccountStatus(el) {
+  el.hidden = true;
+}
+
+const ACCOUNT_VIEWS = {
+  login: { el: () => els.accountViewLogin, title: "Iniciar sesión" },
+  registro: { el: () => els.accountViewRegistro, title: "Crear cuenta" },
+  verificar: { el: () => els.accountViewVerificar, title: "Revisá tu correo" },
+  logged: { el: () => els.accountViewLogged, title: "Mi cuenta" },
+};
+
+function showAccountView(viewName) {
+  Object.values(ACCOUNT_VIEWS).forEach((v) => { v.el().hidden = true; });
+  const view = ACCOUNT_VIEWS[viewName];
+  view.el().hidden = false;
+  els.accountTitle.textContent = view.title;
+}
+
+function showAccountLoggedView() {
+  els.accountGreetingName.textContent = session.nombre || "";
+  showAccountView("logged");
+  updateAccountButton();
+}
+
+// El texto del link de la esquina refleja si hay sesión o no — "Hola,
+// Nombre" en vez de "Iniciar sesión" una vez logueado.
+function updateAccountButton() {
+  els.accountFab.textContent = session ? `Hola, ${session.nombre}` : "Iniciar sesión";
+}
+
+function setupAccountModal() {
+  els.accountFab.addEventListener("click", () => {
+    if (session) {
+      els.accountGreetingName.textContent = session.nombre || "";
+      showAccountView("logged");
+    } else {
+      showAccountView("login");
+    }
+    openModalEl(els.accountModal);
+  });
+
+  els.showRegistroBtn.addEventListener("click", () => showAccountView("registro"));
+  els.showLoginBtn.addEventListener("click", () => showAccountView("login"));
+
+  els.loginSubmitBtn.addEventListener("click", submitLogin);
+  els.registroSubmitBtn.addEventListener("click", submitRegistro);
+  els.accountLogoutBtn.addEventListener("click", logout);
 }
