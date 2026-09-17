@@ -69,6 +69,7 @@ function cacheElements() {
   els.cartEmptyEl = document.getElementById("cart-empty");
   els.cartNombre = document.getElementById("cart-nombre");
   els.cartApellido = document.getElementById("cart-apellido");
+  els.cartEntidad = document.getElementById("cart-entidad");
   els.cartWhatsapp = document.getElementById("cart-whatsapp");
   els.cartEmail = document.getElementById("cart-email");
   els.cartMensaje = document.getElementById("cart-mensaje");
@@ -91,4 +92,31 @@ function cacheElements() {
   els.contactAddressValue = document.getElementById("contact-address-value");
   els.contactMapLink = document.getElementById("contact-map-link");
   els.contactMapIframe = document.getElementById("contact-map-iframe");
+
+  // ---- Cuenta (login / registro / historial) — Fase D ----
+  els.accountFab = document.getElementById("account-fab");
+  els.accountModal = document.getElementById("account-modal");
+  els.accountTitle = document.getElementById("account-title");
+
+  els.accountViewLogin = document.getElementById("account-view-login");
+  els.accountViewRegistro = document.getElementById("account-view-registro");
+  els.accountViewVerificar = document.getElementById("account-view-verificar");
+  els.accountViewLogged = document.getElementById("account-view-logged");
+
+  els.loginEmail = document.getElementById("login-email");
+  els.loginPassword = document.getElementById("login-password");
+  els.loginStatus = document.getElementById("login-status");
+  els.loginSubmitBtn = document.getElementById("login-submit-btn");
+  els.showRegistroBtn = document.getElementById("show-registro-btn");
+
+  els.registroNombre = document.getElementById("registro-nombre");
+  els.registroApellido = document.getElementById("registro-apellido");
+  els.registroEmail = document.getElementById("registro-email");
+  els.registroPassword = document.getElementById("registro-password");
+  els.registroStatus = document.getElementById("registro-status");
+  els.registroSubmitBtn = document.getElementById("registro-submit-btn");
+  els.showLoginBtn = document.getElementById("show-login-btn");
+
+  els.accountGreetingName = document.getElementById("account-greeting-name");
+  els.accountLogoutBtn = document.getElementById("account-logout-btn");
 }
