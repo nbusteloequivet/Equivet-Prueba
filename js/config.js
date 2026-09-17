@@ -6,7 +6,7 @@
    ========================================================================= */
 const CONFIG = {
   // URL del CSV publicado (Archivo > Compartir > Publicar en la Web > CSV)
-  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ1EAro0mIlQv0ZrBowQKgHW5mdKcWYAB_D_DV19GgCIYsP5ZHYyVJtFkBS--bNin_5Uv0MRWVitgzv/pubhtml?gid=0&single=true",
+  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ1EAro0mIlQv0ZrBowQKgHW5mdKcWYAB_D_DV19GgCIYsP5ZHYyVJtFkBS--bNin_5Uv0MRWVitgzv/pub?gid=0&single=true&output=csv",
 
   // Nombre y bajada que se muestran arriba de todo, centrados
   LAB_NAME: "EquiVet",
