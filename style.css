@@ -1,0 +1,966 @@
+/* =========================================================================
+   VARIABLES DE COLOR Y TIPOGRAFÍA
+   ========================================================================= */
+:root {
+  --paper: #ffffff;
+  --paper-raised: #ffffff;
+  --ink: #000000;
+  --ink-soft: #4d4d4d;
+  --accent: #b200ff;
+  --line: #e6e6e6;
+  --line-strong: #cccccc;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono { font-family: var(--font-mono); }
+a { color: var(--accent); }
+
+/* ---------- Header ---------- */
+
+.site-header {
+  background: var(--paper-raised);
+  border-bottom: 2px solid var(--ink);
+  /* Sin "position: sticky" — el header se desplaza con el resto de la
+     página en vez de quedar fijo a mitad de pantalla. */
+}
+
+.header-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 26px 28px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.brand { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+.brand-emblem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+}
+.brand-emblem img {
+  /* Agrandado a pedido. Si el archivo actual sigue siendo el de baja
+     resolución (140×103px original), a este tamaño puede notarse
+     borroso — si es así, es el archivo, no este número; ver charla
+     anterior sobre reemplazarlo por uno de mayor resolución o vectorial. */
+  height: 190px;
+  width: auto;
+  display: block;
+}
+
+/* El nombre no se muestra como texto grande aparte: el logo lo representa
+   visualmente. Pero en vez de "display: none" (que un buscador puede
+   llegar a leer como contenido oculto/sospechoso si se abusa de la
+   técnica) usamos esta técnica estándar: el texto sigue estando en la
+   página para Google y lectores de pantalla, solo que recortado a 1px y
+   fuera del área visible — no se ve, pero cuenta como contenido real. */
+.brand h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Slogan oculto a pedido. Se deja el elemento y el JS que le escribe el
+   texto intactos (no se tocan index.html ni main.js) — así, si en algún
+   momento se quiere mostrar de nuevo, alcanza con borrar esta regla. */
+.brand-sub {
+  display: none;
+}
+
+.filter-row {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- Cartel de "Metodología de uso" (arriba de la página) ----------
+   Mismo patrón visual que el cartel rojo de abajo (caja con borde grueso
+   a la izquierda), pero en violeta: este es un mensaje de bienvenida,
+   no una alerta, así que no usa el rojo reservado para avisos de
+   problemas. Vive en el header, después del logo y antes del buscador.
+
+   Es un <details>/<summary> (ver index.html): plegado, se ve solo el
+   título dentro de la caja; un toque/click en el título despliega el
+   resto. Anda igual en computadora, iPhone y Android sin JS propio. */
+.how-to-use-wrap {
+  max-width: 1320px;
+  margin: 0 auto 24px;
+  padding: 0 28px;
+}
+.how-to-use-banner {
+  border: 1.5px solid var(--accent);
+  border-left-width: 5px;
+  border-radius: 3px;
+  background: #f7ecff;
+  padding: 14px 22px;
+}
+.how-to-use-summary {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent; /* que no parpadee violeta al tocar en el celular */
+}
+/* Sacar el triangulito nativo — a propósito, se pidió sin ningún
+   indicador visual. Hacen falta las 3 reglas: cada navegador lo dibuja
+   con un mecanismo distinto (Firefox con list-style, Safari/iPhone con
+   ::-webkit-details-marker, Chrome moderno con ::marker). */
+.how-to-use-summary {
+  list-style: none;
+}
+.how-to-use-summary::-webkit-details-marker {
+  display: none;
+}
+.how-to-use-summary::marker {
+  content: "";
+}
+/* Sin la flechita, un usuario de teclado necesita alguna señal de que
+   esto tiene foco — un resalte muy sutil, que solo aparece navegando
+   con teclado (Tab), nunca al tocar o hacer click con mouse. */
+.how-to-use-summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.how-to-use-content {
+  margin-top: 12px;
+}
+.how-to-use-content ol {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.how-to-use-content li { margin-bottom: 2px; }
+.how-to-use-thanks {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ---------- Cartel de aviso (productos en carga) ----------
+   Deliberadamente en rojo/de alerta — distinto del banner de estado del
+   catálogo (.status-banner, violeta/neutro) para que se note que es un
+   aviso al cliente y no un mensaje técnico. Se activa/desactiva desde
+   CONFIG.SHOW_LOADING_BANNER (js/config.js), no hace falta tocar esto.
+   Vive entre el final de la grilla y la línea divisoria de Contacto (ver
+   index.html) — el margin-top de acá es lo que lo separa de la última
+   fila de productos; la separación de la línea divisoria de abajo ya la
+   pone .company-contact con su propio margin-top/padding-top. */
+.loading-products-banner {
+  max-width: 1320px;
+  margin: 28px auto 0;
+  padding: 0 28px;
+}
+.loading-products-banner p {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1.5px solid #e63946;
+  border-left-width: 5px;
+  border-radius: 3px;
+  background: #fff3f3;
+  color: #b3001b;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+}
+
+#search-input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+}
+#search-input::placeholder { color: var(--ink-soft); }
+#search-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.category-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Los dos desplegables (Categorías / Laboratorios) van uno al lado del
+   otro; cada uno con su botón y, debajo, su propio panel de chips que
+   arranca oculto. */
+.filter-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.filter-toggle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--accent);
+  border-radius: 20px;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.filter-toggle:hover { opacity: 0.85; }
+/* Violeta cuando el panel está abierto, para que se note cuál está
+   desplegado en este momento. */
+.filter-toggle[aria-expanded="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+.filter-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.filter-toggle-arrow {
+  font-size: 10px;
+  transition: transform 0.15s ease;
+}
+.filter-toggle[aria-expanded="true"] .filter-toggle-arrow {
+  transform: rotate(180deg);
+}
+
+/* Sin esta regla, ".category-chips { display: flex }" de más abajo le
+   gana al atributo "hidden" del HTML (mismo problema que tuvo el modal
+   hace un tiempo) y el panel queda siempre visible, tocaras o no el
+   botón. Esta regla es más específica (una clase + el atributo) así que
+   gana ella, sin importar en qué orden esté escrita en el archivo. */
+.chips-panel[hidden] {
+  display: none;
+}
+
+.subcategory-chips {
+  padding-left: 14px;
+  border-left: 2px solid var(--accent);
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 20px;
+  background: var(--paper-raised);
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all 0.15s ease;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+.chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Banner de estado ---------- */
+
+.status-banner {
+  max-width: 1320px;
+  margin: 20px auto 0;
+  padding: 14px 18px;
+  border: 1.5px solid var(--ink);
+  border-left-width: 5px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 14px;
+  border-radius: 2px;
+}
+.status-banner.info { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- Grilla y tarjetas ---------- */
+
+#main-content { max-width: 1320px; margin: 0 auto; padding: 28px 28px 100px; }
+
+/* 5 columnas (antes 4). minmax más chico + contenedor más ancho para que
+   cada tarjeta pierda lo mínimo posible de tamaño. */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 18px;
+}
+
+.product-card {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+/* Sombra suave en vez del offset duro tipo "neobrutalist" de antes —
+   más acorde a una web de laboratorio, menos a un botón de videojuego. */
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+  border-color: var(--ink);
+}
+
+.card-strip { height: 6px; width: 100%; }
+
+/* La imagen y el nombre siguen abriendo el detalle: cursor pointer solo acá,
+   no en toda la tarjeta, porque ahora la tarjeta tiene controles propios
+   (cantidad / agregar) que no deben disparar el modal. */
+.card-media, .card-title {
+  cursor: pointer;
+}
+
+.card-media {
+  /* Antes era 4:3. Al pasar a 5 columnas cada tarjeta quedó más angosta,
+     y como esta caja escala en proporción al ancho, la imagen se achicó
+     de rebote. Un cuadrado (1:1) le devuelve tamaño a la imagen sin tocar
+     el ancho de la tarjeta ni la alineación de abajo — la tarjeta
+     simplemente queda un poco más alta, que es lo que se pidió. */
+  aspect-ratio: 1 / 1;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1.5px solid var(--line);
+}
+.card-media img { width: 100%; height: 100%; object-fit: contain; }
+.card-media .no-image {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-align: center;
+  padding: 10px;
+}
+
+.card-body {
+  padding: 16px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  line-height: 1.25;
+  /* Altura FIJA de exactamente 2 renglones (17px × 1.25 × 2), siempre la
+     misma tenga el nombre 1, 2 o más renglones — así todo lo que va
+     debajo (categoría, disponibilidad, "Agregar") arranca a la misma
+     altura en toda la fila. En mobile, la tarjeta es más angosta y un
+     nombre largo puede necesitar 3 renglones; -webkit-line-clamp corta
+     prolijo con "…" después del 2do renglón en vez de partir el 3ro a la
+     mitad (que es lo que pasaba antes). height + overflow quedan como
+     resguardo por si algún navegador viejo no soporta line-clamp. */
+  height: 43px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.card-category { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+.card-subcategory { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-soft); opacity: 0.8; }
+
+/* Laboratorio en la tarjeta chica: SOLO se llena de texto cuando el
+   producto comparte nombre con otro (2 laboratorios distintos del mismo
+   ítem) — ver ui.js, buildCard(). El elemento se imprime siempre, vacío o
+   no, con altura fija de una línea (sin permitir que se corte en 2 renglones
+   con overflow/ellipsis) para que TODAS las tarjetas midan exactamente lo
+   mismo, tengan o no laboratorio visible. */
+.card-lab {
+  display: block;
+  height: 15px;
+  line-height: 15px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-footer {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1.5px solid var(--ink);
+}
+
+/* Agrupa la línea divisoria + "En stock" + selector de cantidad + botón
+   "Agregar" en un solo bloque, y lo pega siempre al FONDO de la tarjeta
+   (margin-top: auto empuja todo el espacio libre hacia arriba de este
+   bloque). .card-body ya es un flex-column con flex:1 (ver más abajo), así
+   que esto funciona sin tocar nada de la imagen ni de los textos de
+   arriba — la línea queda siempre a la misma altura en toda la fila de la
+   grilla, sin importar si el producto tiene 1 o 3 categorías. */
+.card-bottom {
+  margin-top: auto;
+}
+
+/* Etiqueta "En stock" / "A pedido" — reemplaza al precio, que ya no se
+   muestra al cliente (sigue existiendo en la planilla, solo no se lee acá). */
+.avail-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 2px;
+  padding: 3px 8px;
+  border: 1px solid;
+}
+.avail-tag.in { color: var(--accent); border-color: var(--accent); }
+.avail-tag.out { color: var(--ink-soft); border-color: var(--line-strong); }
+
+/* Selector de cantidad + botón "Agregar" de cada tarjeta */
+.card-cart-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.qty-btn {
+  width: 28px;
+  height: 32px;
+  border: none;
+  background: var(--paper);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ink);
+}
+.qty-btn:hover { background: var(--line); }
+.qty-input {
+  width: 54px;
+  height: 32px;
+  text-align: center;
+  border: none;
+  border-left: 1.5px solid var(--line-strong);
+  border-right: 1.5px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  /* Se puede pedir más de 100 unidades: sin límite máximo en el input. */
+}
+.qty-input:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.add-btn {
+  flex: 1;
+  background: var(--ink);
+  color: var(--paper-raised);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.add-btn:hover { background: var(--accent); }
+
+/* Estado "Agregado" / "Modificado": mismo violeta que ya usa el resto de
+   la página para indicar algo activo/confirmado (chips seleccionados,
+   "En stock", laboratorio destacado en la tarjeta) — mismo color y
+   formato en los dos casos, tal como se pidió. */
+.add-btn.is-done { background: var(--accent); }
+
+.cart-indicator {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 6px;
+}
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--ink-soft); font-family: var(--font-mono); font-size: 14px; }
+
+/* ---------- Contacto de la empresa ---------- */
+
+.company-contact {
+  margin-top: 44px;
+  padding-top: 36px;
+  border-top: 2px solid var(--ink);
+}
+
+.company-contact-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+.company-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  background: var(--paper-raised);
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  padding: 20px 14px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--line-strong); border-color: var(--accent); }
+.contact-card-static { cursor: default; }
+
+.contact-icon { font-size: 26px; line-height: 1; }
+.contact-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.contact-value {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  word-break: break-word;
+}
+
+.company-map-wrap {
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--paper-raised);
+}
+
+.company-map-address {
+  margin: 0;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-bottom: 1.5px solid var(--line);
+}
+
+.company-map-link {
+  position: relative;
+  display: block;
+  text-decoration: none;
+}
+
+.company-map-iframe {
+  display: block;
+  width: 100%;
+  height: 280px;
+  border: 0;
+  pointer-events: none; /* los clicks los recibe el <a> que envuelve al iframe */
+}
+
+.company-map-overlay {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 7px 12px;
+  border-radius: 20px;
+  box-shadow: 2px 3px 0 var(--line-strong);
+}
+.company-map-link:hover .company-map-overlay { background: var(--accent); }
+
+@media (max-width: 560px) {
+  .company-contact { margin-top: 32px; padding-top: 26px; }
+  .company-map-iframe { height: 220px; }
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer { max-width: 1320px; margin: 0 auto; padding: 20px 28px 90px; color: var(--ink-soft); font-size: 12px; }
+
+/* ---------- Botones flotantes (Contacto + Mi pedido) ----------
+   Antes era una píldora violeta brillante con borde grueso y sombra dura
+   tipo botón de videojuego. Ahora: rectangular, chato, sombra suave — el
+   mismo lenguaje visual sobrio del resto de la página. */
+
+.fab-stack {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.fab:hover { transform: translateY(-1px); }
+.fab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.fab-primary { background: var(--ink); color: #ffffff; }
+.fab-primary:hover { background: var(--accent); border-color: var(--accent); }
+
+.fab-secondary { background: var(--paper-raised); color: var(--ink); }
+.fab-secondary:hover { background: var(--paper); border-color: var(--accent); color: var(--accent); }
+
+.cart-count {
+  background: var(--accent);
+  color: #ffffff;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 0 4px;
+}
+
+/* ---------- Modal genérico (detalle de producto y carrito comparten esta base) ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100dvh; /* alto real visible en el celular (100vh no descuenta la barra de direcciones del navegador cuando está mostrándose — por eso la cruz de cerrar quedaba tapada) */
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  display: none; /* oculto por defecto */
+}
+/* El display:flex solo se activa sin el atributo "hidden" — si esta regla
+   faltara, el modal quedaría siempre visible aunque tenga "hidden" puesto
+   (fue el bug de la franja negra fija de la vez pasada). */
+.modal-overlay:not([hidden]) { display: flex; }
+
+.modal-content {
+  background: var(--paper-raised);
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  max-width: 780px;
+  width: 100%;
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper-raised);
+  border-radius: 50%;
+  font-size: 15px;
+  cursor: pointer;
+  z-index: 3;
+}
+.modal-close:hover { background: var(--ink); color: var(--paper-raised); }
+
+/* ---------- Modal de detalle de producto ----------
+   El grid va en #modal-body (no en .modal-content) para que la imagen y
+   los datos realmente ocupen las dos columnas completas — antes estaba
+   puesto un nivel más arriba y los datos quedaban angostos, pegados a la
+   izquierda con todo el resto de la ventana vacío a la derecha. */
+#modal-body {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+}
+
+.modal-media {
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 320px;
+}
+.modal-media img { width: 100%; height: 100%; object-fit: contain; }
+
+.modal-info {
+  padding: 40px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  gap: 10px;
+}
+.modal-info h2 { font-family: var(--font-display); font-size: 25px; margin: 4px 0 0; }
+/* Agrupa categorías + subcategorías (una por renglón) en un solo bloque,
+   con su propio espaciado más ajustado que el "gap: 10px" general de
+   .modal-info — si no, cada categoría quedaría demasiado separada de la
+   siguiente. */
+.modal-tags {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.modal-category, .modal-subcategory {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.modal-avail-row { margin: 6px 0 4px; }
+.modal-row {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  border-top: 1px dashed var(--line-strong);
+  padding-top: 8px;
+  margin-top: 6px;
+}
+.modal-row .k { font-family: var(--font-mono); color: var(--ink-soft); text-transform: uppercase; font-size: 10.5px; white-space: nowrap; }
+.modal-desc { font-size: 13.5px; color: var(--ink-soft); margin: 10px 0 0; line-height: 1.6; max-width: 340px; }
+
+.modal-cart-row {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  #modal-body { grid-template-columns: 1fr; }
+  .modal-media { min-height: 220px; }
+  .modal-info { padding: 28px 24px; }
+}
+
+/* ---------- Modal del carrito ---------- */
+
+.cart-modal-content { max-width: 620px; }
+
+.cart-modal-inner { padding: 34px 30px 28px; display: flex; flex-direction: column; gap: 18px; }
+.cart-modal-inner h2 { font-family: var(--font-display); font-size: 24px; margin: 0; text-align: center; }
+.cart-modal-inner h3 { font-family: var(--font-display); font-size: 15px; margin: 0 0 4px; }
+
+.cart-items { display: flex; flex-direction: column; gap: 10px; }
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 4px;
+  padding: 10px 12px;
+}
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-weight: 600; font-size: 14px; }
+.cart-item-meta { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+.cart-item-qty { width: 64px; text-align: center; border: 1.5px solid var(--line-strong); border-radius: 3px; padding: 6px 2px; font-family: var(--font-mono); }
+.cart-item-remove {
+  border: 1.5px solid var(--line-strong);
+  background: var(--paper);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.cart-item-remove:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.cart-empty { text-align: center; color: var(--ink-soft); font-size: 13.5px; padding: 10px 0; }
+
+.cart-form { display: flex; flex-direction: column; gap: 10px; border-top: 1.5px solid var(--ink); padding-top: 16px; }
+.cart-form label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+
+/* Campo trampa anti-spam (ver index.html): oculto "de forma accesible" —
+   fuera de la pantalla con posicionamiento absoluto, en vez de
+   display:none. Un display:none es algo que los bots más simples
+   también detectan y saltean a propósito; así, en cambio, el campo
+   sigue "presente" para un bot que llena todo indiscriminadamente. */
+.honeypot-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.cart-form input, .cart-form textarea {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  font-weight: 400;
+}
+/* El cliente ya no puede arrastrar la esquina para agrandar/achicar el
+   cuadro a mano (quedaba raro) — en su lugar, cart.js lo agranda solo
+   hacia abajo a medida que escribe (ver setupAutoGrowTextarea). */
+.cart-form textarea {
+  resize: none;
+  overflow: hidden;
+}
+.cart-form input:focus-visible, .cart-form textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.cart-status {
+  font-size: 13px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  text-align: center;
+}
+.cart-status.error { border-color: var(--ink); color: var(--ink); }
+.cart-status.success { border-color: var(--accent); color: var(--accent); }
+
+.cart-send {
+  border-top: 1.5px solid var(--ink);
+  padding-top: 16px;
+}
+.btn-provider {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.btn-provider:hover { background: var(--accent); border-color: var(--accent); }
+.btn-provider:disabled {
+  opacity: 0.6;
+  cursor: default;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.cart-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn-primary, .btn-secondary {
+  flex: 1 1 150px;
+  padding: 11px 14px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+}
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+.btn-secondary { background: var(--paper); color: var(--ink); }
+.btn-secondary:hover { background: var(--line); }
+
+/* ---------- Responsive general ---------- */
+
+@media (max-width: 560px) {
+  .header-inner { padding: 24px 18px 14px; }
+  .filter-row { padding: 0 18px 16px; }
+  .loading-products-banner { margin-top: 20px; padding: 0 18px; }
+  .how-to-use-wrap { margin: 0 auto 18px; padding: 0 18px; }
+  .how-to-use-banner { padding: 12px 16px; }
+  .how-to-use-summary { font-size: 15px; }
+  #main-content { padding: 20px 18px 110px; }
+  .catalog-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .brand-sub { font-size: 16px; }
+  .brand-emblem img { height: 130px; }
+  .fab-stack { right: 14px; bottom: 14px; gap: 8px; }
+  .fab { padding: 10px 16px; font-size: 12.5px; }
+
+  /* El selector de cantidad + "Agregar" pasan a ir uno debajo del otro
+     (en vez de lado a lado) porque en 2 columnas cada tarjeta queda
+     angosta y el botón se cortaba. Afecta solo mobile; en desktop siguen
+     lado a lado como siempre. */
+  .card-cart-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .qty-control {
+    justify-content: center;
+  }
+  .add-btn {
+    width: 100%;
+  }
+
+  /* Modal del carrito más compacto en el celular: menos aire alrededor
+     y entre los campos, para que la cruz de cerrar quede siempre bien
+     visible arriba, sin pelearse con la barra de direcciones del
+     navegador (ver el fix de 100dvh más arriba en este archivo). */
+  .modal-overlay { padding: 10px; }
+  .modal-close { top: 8px; right: 8px; width: 28px; height: 28px; font-size: 13px; }
+  .cart-modal-inner { padding: 20px 16px 18px; gap: 12px; }
+  .cart-modal-inner h2 { font-size: 19px; }
+  .cart-form { gap: 8px; padding-top: 12px; }
+  .cart-send { padding-top: 12px; }
+}
+
+@media (max-width: 380px) {
+  .catalog-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  html { scroll-behavior: auto; }
+}
