@@ -386,9 +386,6 @@ function setupModalClosers() {
   document.querySelectorAll("[data-close-modal]").forEach((btn) => {
     btn.addEventListener("click", () => closeModalEl(document.getElementById(btn.dataset.closeModal)));
   });
-  // Se agregó accountModal a esta lista y a la de Escape más abajo — sin
-  // esto, el botón ✕ del modal de cuenta cerraba bien (usa
-  // data-close-modal, ver arriba) pero tocar afuera o Escape no.
   [els.productModal, els.cartModal, els.accountModal, els.historialModal].forEach((overlay) => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) closeModalEl(overlay);
@@ -533,10 +530,7 @@ function hideStatus() {
 }
 
 /* ------------------------------------------------------------------------
-   Modal de cuenta — cambia entre las 4 "vistas" (login, registro,
-   verificar, logueado) mostrando una y ocultando las otras 3. La lógica
-   de login/registro/logout en sí vive en account.js; acá solo se conecta
-   con los botones y se decide qué mostrar.
+   Modal de cuenta
    ------------------------------------------------------------------------ */
 function showAccountStatus(el, msg, type) {
   el.hidden = false;
@@ -567,8 +561,6 @@ function showAccountLoggedView() {
   updateAccountButton();
 }
 
-// El texto del link de la esquina refleja si hay sesión o no — "Hola,
-// Nombre" en vez de "Iniciar sesión" una vez logueado.
 function updateAccountButton() {
   els.accountFab.textContent = session ? `Hola, ${session.nombre}` : "Iniciar sesión";
   els.historialFab.hidden = !session;
@@ -592,9 +584,9 @@ function setupAccountModal() {
   els.registroSubmitBtn.addEventListener("click", submitRegistro);
   els.accountLogoutBtn.addEventListener("click", logout);
 }
+
 /* ------------------------------------------------------------------------
-   Modal de historial — 2 vistas (lista / detalle de un pedido), mismo
-   patrón que el modal de cuenta.
+   Modal de historial
    ------------------------------------------------------------------------ */
 const HISTORIAL_VIEWS = {
   list: () => els.historialViewList,
@@ -626,9 +618,21 @@ async function openHistorialModal() {
 function setupHistorialModal() {
   els.historialFab.addEventListener("click", openHistorialModal);
   els.historialBackBtn.addEventListener("click", () => showHistorialView("list"));
-  // Todavía no está conectado — se arma en la próxima fase (cargar este
-  // pedido en el carrito + el mecanismo de diff para el mail).
+
   els.historialEditBtn.addEventListener("click", () => {
-    showAccountStatus(els.historialEditStatus, "Editar pedidos se conecta en el próximo paso — por ahora es solo para mostrar cómo se va a ver.", "success");
+    const noEncontrados = cargarPedidoEnCarrito(currentHistorialPedido);
+    closeModalEl(els.historialModal);
+    renderCartModal();
+    openModalEl(els.cartModal);
+    autoGrowTextarea(els.cartMensaje);
+
+    if (noEncontrados.length > 0) {
+      showCartStatus(
+        `Cargamos tu pedido — ojo, ${noEncontrados.length} producto(s) de esa vez ya no están en el catálogo actual (quedaron anotados en el mensaje).`,
+        "error"
+      );
+    } else {
+      showCartStatus("Cargamos tu pedido anterior — modificá lo que necesites y reenvialo.", "success");
+    }
   });
 }
