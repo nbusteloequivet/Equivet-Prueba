@@ -19,9 +19,6 @@ let cartIndicatorEls = {};
 
 let addButtonEls = {};
 
-// Sesión del cliente logueado — null si nadie inició sesión. Se llena al
-// cargar la página (si había una sesión guardada del navegador, ver
-// account.js) o al loguearse con éxito: { token, nombre, apellido }.
 let session = null;
 
 const els = {};
@@ -100,4 +97,16 @@ function cacheElements() {
 
   els.accountGreetingName = document.getElementById("account-greeting-name");
   els.accountLogoutBtn = document.getElementById("account-logout-btn");
+
+  // ---- Historial de pedidos — Fase E ----
+  els.historialFab = document.getElementById("historial-fab");
+  els.historialModal = document.getElementById("historial-modal");
+  els.historialList = document.getElementById("historial-list");
+  els.historialEmpty = document.getElementById("historial-empty");
+  els.historialViewList = document.getElementById("historial-view-list");
+  els.historialViewDetail = document.getElementById("historial-view-detail");
+  els.historialBackBtn = document.getElementById("historial-back-btn");
+  els.historialDetailBody = document.getElementById("historial-detail-body");
+  els.historialEditBtn = document.getElementById("historial-edit-btn");
+  els.historialEditStatus = document.getElementById("historial-edit-status");
 }
