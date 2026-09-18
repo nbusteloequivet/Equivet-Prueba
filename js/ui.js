@@ -389,7 +389,7 @@ function setupModalClosers() {
   // Se agregó accountModal a esta lista y a la de Escape más abajo — sin
   // esto, el botón ✕ del modal de cuenta cerraba bien (usa
   // data-close-modal, ver arriba) pero tocar afuera o Escape no.
-  [els.productModal, els.cartModal, els.accountModal].forEach((overlay) => {
+  [els.productModal, els.cartModal, els.accountModal, els.historialModal].forEach((overlay) => {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) closeModalEl(overlay);
     });
@@ -397,6 +397,7 @@ function setupModalClosers() {
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (!els.cartModal.hidden) closeModalEl(els.cartModal);
+    else if (!els.historialModal.hidden) closeModalEl(els.historialModal);
     else if (!els.accountModal.hidden) closeModalEl(els.accountModal);
     else if (!els.productModal.hidden) closeModalEl(els.productModal);
   });
@@ -570,6 +571,7 @@ function showAccountLoggedView() {
 // Nombre" en vez de "Iniciar sesión" una vez logueado.
 function updateAccountButton() {
   els.accountFab.textContent = session ? `Hola, ${session.nombre}` : "Iniciar sesión";
+  els.historialFab.hidden = !session;
 }
 
 function setupAccountModal() {
@@ -589,4 +591,44 @@ function setupAccountModal() {
   els.loginSubmitBtn.addEventListener("click", submitLogin);
   els.registroSubmitBtn.addEventListener("click", submitRegistro);
   els.accountLogoutBtn.addEventListener("click", logout);
+}
+/* ------------------------------------------------------------------------
+   Modal de historial — 2 vistas (lista / detalle de un pedido), mismo
+   patrón que el modal de cuenta.
+   ------------------------------------------------------------------------ */
+const HISTORIAL_VIEWS = {
+  list: () => els.historialViewList,
+  detail: () => els.historialViewDetail,
+};
+
+function showHistorialView(viewName) {
+  Object.values(HISTORIAL_VIEWS).forEach((getEl) => { getEl().hidden = true; });
+  HISTORIAL_VIEWS[viewName]().hidden = false;
+}
+
+async function openHistorialModal() {
+  showHistorialView("list");
+  els.historialEmpty.hidden = true;
+  els.historialList.innerHTML = "<p class=\"cart-empty\">Cargando…</p>";
+  openModalEl(els.historialModal);
+
+  const data = await fetchMisPedidos();
+  if (!data.ok) {
+    els.historialList.innerHTML = "";
+    els.historialEmpty.hidden = false;
+    els.historialEmpty.textContent = "No pudimos cargar tu historial — cerrá este cartel y volvé a intentar.";
+    return;
+  }
+  els.historialEmpty.textContent = "Todavía no hiciste ningún pedido.";
+  renderHistorialList(data.pedidos);
+}
+
+function setupHistorialModal() {
+  els.historialFab.addEventListener("click", openHistorialModal);
+  els.historialBackBtn.addEventListener("click", () => showHistorialView("list"));
+  // Todavía no está conectado — se arma en la próxima fase (cargar este
+  // pedido en el carrito + el mecanismo de diff para el mail).
+  els.historialEditBtn.addEventListener("click", () => {
+    showAccountStatus(els.historialEditStatus, "Editar pedidos se conecta en el próximo paso — por ahora es solo para mostrar cómo se va a ver.", "success");
+  });
 }
