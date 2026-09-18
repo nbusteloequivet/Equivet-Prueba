@@ -21,6 +21,12 @@ let addButtonEls = {};
 
 let session = null;
 
+// Pedido que se está editando (viene de "Editar pedido" en Mi historial),
+// o null si el carrito es un pedido nuevo. Se manda al servidor junto con
+// el pedido para que Código.gs sepa que esto es una actualización y no
+// una cotización nueva — ver cart.js, submitOrderToServer.
+let editingOrderId = null;
+
 const els = {};
 
 function cacheElements() {
@@ -44,6 +50,7 @@ function cacheElements() {
   els.cartFab = document.getElementById("cart-fab");
   els.cartCount = document.getElementById("cart-count");
   els.cartModal = document.getElementById("cart-modal");
+  els.cartTitle = document.getElementById("cart-title");
   els.cartItemsEl = document.getElementById("cart-items");
   els.cartEmptyEl = document.getElementById("cart-empty");
   els.cartNombre = document.getElementById("cart-nombre");
@@ -98,7 +105,6 @@ function cacheElements() {
   els.accountGreetingName = document.getElementById("account-greeting-name");
   els.accountLogoutBtn = document.getElementById("account-logout-btn");
 
-  // ---- Historial de pedidos — Fase E ----
   els.historialFab = document.getElementById("historial-fab");
   els.historialModal = document.getElementById("historial-modal");
   els.historialList = document.getElementById("historial-list");
