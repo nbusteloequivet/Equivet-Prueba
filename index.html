@@ -147,7 +147,14 @@
   </section>
 </main>
 
+<!-- Botones flotantes: Mi historial (solo si está logueado — arranca
+     "hidden", ui.js lo muestra/oculta), Mi presupuesto y Contacto. El
+     orden acá abajo es el orden visual real: el primero en el HTML queda
+     arriba de la columna. -->
 <div class="fab-stack">
+  <button id="historial-fab" class="fab fab-secondary" type="button" aria-haspopup="dialog" hidden>
+    Mi historial
+  </button>
   <button id="cart-fab" class="fab fab-primary" type="button" aria-haspopup="dialog">
     Mi presupuesto
     <span id="cart-count" class="cart-count" hidden>0</span>
@@ -265,12 +272,38 @@
   </div>
 </div>
 
+<!-- Modal de historial: 2 vistas (lista de tarjetas / detalle de un
+     pedido puntual), mismo patrón que account-modal. El botón "Editar
+     pedido" está pero todavía no hace nada real — avisa en pantalla que
+     es el próximo paso. -->
+<div id="historial-modal" class="modal-overlay" hidden>
+  <div class="modal-content cart-modal-content" role="dialog" aria-modal="true" aria-labelledby="historial-title">
+    <button class="modal-close" data-close-modal="historial-modal" aria-label="Cerrar">✕</button>
+    <div class="cart-modal-inner">
+      <h2 id="historial-title">Mi historial</h2>
+
+      <div id="historial-view-list">
+        <div id="historial-list" class="historial-list"></div>
+        <p id="historial-empty" class="cart-empty" hidden>Todavía no hiciste ningún pedido.</p>
+      </div>
+
+      <div id="historial-view-detail" hidden>
+        <button id="historial-back-btn" class="link-btn" type="button">← Volver a mis pedidos</button>
+        <div id="historial-detail-body" class="historial-detail-body"></div>
+        <div id="historial-edit-status" class="cart-status" hidden></div>
+        <button id="historial-edit-btn" class="btn-provider" type="button">Editar pedido</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/account.js"></script>
+<script src="js/historial.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
 </body>
