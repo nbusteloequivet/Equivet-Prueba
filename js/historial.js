@@ -1,13 +1,9 @@
 /* =========================================================================
    HISTORIAL.JS — Trae el historial de pedidos del cliente logueado desde
-   Código.gs y arma el HTML de la lista de tarjetas y del detalle de cada
-   pedido. No decide CUÁNDO se muestra cada cosa (eso es setupHistorialModal
-   en ui.js) — solo trae los datos y los convierte en HTML.
+   Código.gs, arma el HTML de la lista y del detalle, y carga un pedido
+   viejo en el carrito para editarlo.
    ========================================================================= */
 
-// Pedido actualmente abierto en la vista de detalle — se guarda acá para
-// que, cuando se conecte "Editar pedido" (próxima fase), ya se sepa sobre
-// cuál pedido trabajar sin volver a consultar el servidor.
 let currentHistorialPedido = null;
 
 async function fetchMisPedidos() {
@@ -20,7 +16,6 @@ async function fetchMisPedidos() {
   }
 }
 
-// "15/09/2026" + "10:27:40" -> "15/09/2026 · 10:27" (sin segundos).
 function formatFechaHora(fecha, hora) {
   const horaCorta = (hora || "").toString().split(":").slice(0, 2).join(":");
   return [fecha, horaCorta].filter(Boolean).join(" · ");
@@ -76,4 +71,54 @@ function openHistorialDetail(pedido) {
   els.historialEditStatus.hidden = true;
   renderHistorialDetail(pedido);
   showHistorialView("detail");
+}
+
+/* ------------------------------------------------------------------------
+   Cargar un pedido del historial en el carrito, para editarlo. Devuelve
+   la lista de productos que NO se pudieron encontrar en el catálogo
+   actual (discontinuados, por ejemplo) — quedan anotados en el mensaje
+   en vez de perderse en silencio.
+   ------------------------------------------------------------------------ */
+function cargarPedidoEnCarrito(pedido) {
+  clearCart();
+
+  const noEncontrados = [];
+  pedido.items.forEach((item) => {
+    const match = allProducts.find((p) => {
+      if (item.codigo && p.code) return p.code === item.codigo;
+      return !item.codigo && p.name === item.nombre;
+    });
+    if (match) {
+      const key = productKey(match);
+      cart[key] = { product: match, qty: safeInt(item.cantidad) || 1 };
+    } else {
+      noEncontrados.push(item);
+    }
+  });
+
+  els.cartNombre.value = pedido.nombre || "";
+  els.cartApellido.value = pedido.apellido || "";
+  els.cartEntidad.value = pedido.entidad || "";
+  els.cartWhatsapp.value = pedido.whatsapp || "";
+  els.cartEmail.value = pedido.email || "";
+
+  let mensaje = pedido.mensaje || "";
+  if (noEncontrados.length > 0) {
+    const aviso = "Productos de este pedido que ya no están en el catálogo actual: " +
+      noEncontrados.map((i) => `${i.nombre} (cantidad ${i.cantidad})`).join(", ");
+    mensaje = mensaje ? mensaje + "\n\n" + aviso : aviso;
+  }
+  els.cartMensaje.value = mensaje;
+
+  editingOrderId = pedido.orderId;
+  els.cartTitle.textContent = "Editando pedido #" + pedido.orderId;
+
+  Object.keys(cart).forEach((key) => {
+    updateCartIndicator(key);
+    const btn = addButtonEls[key];
+    if (btn) setAddButtonDone(btn, false);
+  });
+  updateCartFabCount();
+
+  return noEncontrados;
 }
