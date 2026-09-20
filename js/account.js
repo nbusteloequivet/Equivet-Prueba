@@ -1,22 +1,9 @@
 /* =========================================================================
    ACCOUNT.JS — Login, registro y sesión del cliente.
-
-   La sesión (token + nombre + apellido) se guarda en localStorage del
-   navegador, así el cliente no tiene que loguearse de nuevo cada vez que
-   entra al sitio. La contraseña NUNCA se guarda acá — solo persiste el
-   token que devuelve Código.gs al loguearse.
-
-   Login y registro van por GET (no por POST): es la única forma de poder
-   LEER la respuesta desde el navegador — ver la explicación completa en
-   el chat de cuando se armó esto. El envío de pedidos (cart.js) sigue
-   siendo POST con no-cors, eso no cambia.
    ========================================================================= */
 
 const SESSION_STORAGE_KEY = "equivetSession";
 
-/* ------------------------------------------------------------------------
-   Persistencia de la sesión en el navegador
-   ------------------------------------------------------------------------ */
 function loadSessionFromStorage() {
   try {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -43,11 +30,6 @@ function clearSessionFromStorage() {
   }
 }
 
-/* ------------------------------------------------------------------------
-   Llamada genérica a las acciones de cuenta del Apps Script (todas GET).
-   Arma la URL con el siteToken siempre incluido, y devuelve el JSON ya
-   interpretado.
-   ------------------------------------------------------------------------ */
 async function accountApiCall(params) {
   const url = new URL(CONFIG.ORDERS_SHEET_WEBAPP_URL);
   url.searchParams.set("siteToken", CONFIG.SITE_TOKEN);
@@ -57,9 +39,17 @@ async function accountApiCall(params) {
   return response.json();
 }
 
-/* ------------------------------------------------------------------------
-   Login
-   ------------------------------------------------------------------------ */
+// Completa Nombre/Apellido/Email del formulario de pedido con los datos
+// de la cuenta logueada. WhatsApp y Entidad NO se tocan — no forman
+// parte de la cuenta (nunca se piden al registrarse), pueden variar de
+// un pedido a otro.
+function autocompletarDatosCliente() {
+  if (!session) return;
+  els.cartNombre.value = session.nombre || "";
+  els.cartApellido.value = session.apellido || "";
+  els.cartEmail.value = session.email || "";
+}
+
 async function submitLogin() {
   hideAccountStatus(els.loginStatus);
 
@@ -80,8 +70,9 @@ async function submitLogin() {
       return;
     }
 
-    session = { token: data.token, nombre: data.nombre, apellido: data.apellido };
+    session = { token: data.token, nombre: data.nombre, apellido: data.apellido, email: data.email };
     saveSessionToStorage(session);
+    autocompletarDatosCliente();
     els.loginEmail.value = "";
     els.loginPassword.value = "";
     showAccountLoggedView();
@@ -93,9 +84,6 @@ async function submitLogin() {
   }
 }
 
-/* ------------------------------------------------------------------------
-   Registro
-   ------------------------------------------------------------------------ */
 async function submitRegistro() {
   hideAccountStatus(els.registroStatus);
 
@@ -104,8 +92,8 @@ async function submitRegistro() {
   const email = els.registroEmail.value.trim();
   const password = els.registroPassword.value;
 
-  if (!nombre || !email || !password) {
-    showAccountStatus(els.registroStatus, "Completá nombre, email y contraseña.", "error");
+  if (!nombre || !apellido || !email || !password) {
+    showAccountStatus(els.registroStatus, "Completá nombre, apellido, email y contraseña.", "error");
     return;
   }
   if (password.length < 8) {
@@ -135,10 +123,6 @@ async function submitRegistro() {
   }
 }
 
-/* ------------------------------------------------------------------------
-   Logout — no hace falta avisarle al servidor, alcanza con borrar el
-   token guardado acá.
-   ------------------------------------------------------------------------ */
 function logout() {
   session = null;
   clearSessionFromStorage();
@@ -146,10 +130,6 @@ function logout() {
   updateAccountButton();
 }
 
-/* ------------------------------------------------------------------------
-   Traduce los códigos de error que devuelve Código.gs a texto legible
-   para el cliente, sin exponer detalles internos.
-   ------------------------------------------------------------------------ */
 function mensajeErrorCuenta(codigo) {
   const mensajes = {
     email_invalido: "El email no parece válido.",
