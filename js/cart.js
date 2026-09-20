@@ -1,19 +1,5 @@
 /* =========================================================================
    CART.JS — Lógica del pedido (el "carrito").
-
-   Al enviar un presupuesto, el pedido se manda directo al Apps Script
-   (submitOrderToServer): ese script hace las DOS cosas del lado de
-   Google — guarda la fila en la planilla "Pedidos" Y manda el mail de
-   notificación (MailApp) — sin que el cliente tenga que abrir ni tocar
-   nada más.
-
-   Plan B, solo si esa llamada llega a fallar de verdad (sin internet, el
-   Apps Script caído): recién ahí se cae al método de siempre, abrir
-   Gmail con todo cargado para que el cliente lo mande él mismo. Por eso
-   ese código (openGmailComposeUrl y compañía) sigue estando acá, aunque
-   ya no sea el camino principal. NO aplica cuando se está editando un
-   pedido existente (ver sendOrder) — un pedido "de respaldo" por Gmail
-   ahí crearía uno nuevo en vez de actualizar el que ya existía.
    ========================================================================= */
 
 function safeInt(value) {
@@ -24,13 +10,11 @@ function safeInt(value) {
 function addToCart(product, key, qty) {
   cart[key] = { product, qty };
   updateCartIndicator(key);
-  updateCartFabCount();
 }
 
 function removeFromCart(key) {
   delete cart[key];
   updateCartIndicator(key);
-  updateCartFabCount();
   resetAddButton(key);
   renderCartModal();
 }
@@ -48,29 +32,14 @@ function updateCartIndicator(key) {
   }
 }
 
-function updateCartFabCount() {
-  const distinctItems = Object.keys(cart).length;
-  els.cartCount.hidden = distinctItems === 0;
-  els.cartCount.textContent = String(distinctItems);
-}
-
 function clearCart() {
   cart = {};
   editingOrderId = null;
   els.cartTitle.textContent = "Mi presupuesto";
   Object.keys(cartIndicatorEls).forEach(updateCartIndicator);
   Object.keys(addButtonEls).forEach(resetAddButton);
-  updateCartFabCount();
   renderCartModal();
 }
-
-/* ------------------------------------------------------------------------
-   Plan B — abrir Gmail con todo cargado, SIN depender de que la
-   computadora tenga un programa de mail instalado (mailto: requiere eso,
-   y hoy casi nadie lo tiene). Esto ya NO es el camino principal (ver
-   sendOrder más abajo): solo se usa si submitOrderToServer llega
-   a fallar de verdad, y solo para pedidos NUEVOS.
-   ------------------------------------------------------------------------ */
 
 function esEmailValido(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -96,7 +65,7 @@ function prepareOrder() {
     showCartStatus("Agregá productos al pedido o contanos en \"Mensaje adicional\" qué necesitás.", "error");
     return null;
   }
-  if (!nombre || !whatsapp || !email) {
+  if (!nombre || !apellido || !whatsapp || !email) {
     showCartStatus("Completá tus datos antes de enviar.", "error");
     return null;
   }
@@ -202,9 +171,6 @@ async function sendOrder() {
   }
 
   if (wasEditing) {
-    // No tiene sentido el plan B de Gmail acá: mandaría un pedido común,
-    // sin el orderId ni el diff — el empleado lo vería como uno más
-    // nuevo, no como la actualización que en realidad es.
     showCartStatus("No pudimos guardar la actualización — probá de nuevo en un momento.", "error");
     return;
   }
@@ -239,9 +205,6 @@ function buildOrderMessage({ nombre, apellido, entidad, whatsapp, email, mensaje
   return lines.join("\n");
 }
 
-/* ------------------------------------------------------------------------
-   Envío directo al Apps Script.
-   ------------------------------------------------------------------------ */
 async function submitOrderToServer(order) {
   if (!CONFIG.ORDERS_SHEET_WEBAPP_URL || CONFIG.ORDERS_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
     console.warn("CONFIG.ORDERS_SHEET_WEBAPP_URL no está configurada: no se pudo enviar el pedido.");
@@ -268,9 +231,6 @@ async function submitOrderToServer(order) {
     })),
   };
 
-  // Modo edición: viaja el orderId del pedido original + el token de
-  // sesión, para que Código.gs valide que este pedido es de este cliente
-  // antes de tocar nada.
   if (editingOrderId && session) {
     payload.editOrderId = editingOrderId;
     payload.sessionToken = session.token;
