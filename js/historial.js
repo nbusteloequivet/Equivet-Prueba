@@ -1,7 +1,5 @@
 /* =========================================================================
-   HISTORIAL.JS — Trae el historial de pedidos del cliente logueado desde
-   Código.gs, arma el HTML de la lista y del detalle, y carga un pedido
-   viejo en el carrito para editarlo.
+   HISTORIAL.JS
    ========================================================================= */
 
 let currentHistorialPedido = null;
@@ -26,7 +24,7 @@ function buildHistorialCard(pedido) {
   card.type = "button";
   card.className = "historial-card";
   card.innerHTML = `
-    <span class="historial-card-date">${escapeHtml(formatFechaHora(pedido.fecha, pedido.hora))}</span>
+    <span class="historial-card-date">Pedido #${escapeHtml(String(pedido.orderId))} — ${escapeHtml(formatFechaHora(pedido.fecha, pedido.hora))}</span>
     <span class="historial-card-arrow" aria-hidden="true">→</span>
   `;
   card.addEventListener("click", () => openHistorialDetail(pedido));
@@ -55,6 +53,13 @@ function renderHistorialDetail(pedido) {
       `).join("")
     : `<p class="cart-empty">Este pedido no tiene productos del catálogo cargados.</p>`;
 
+  const mensajeHtml = pedido.mensaje
+    ? `<div class="historial-mensaje-block">
+         <span class="historial-mensaje-label">Mensaje adicional</span>
+         <p class="historial-mensaje">"${escapeHtml(pedido.mensaje)}"</p>
+       </div>`
+    : "";
+
   els.historialDetailBody.innerHTML = `
     ${historialDetailRowHtml("Pedido", "#" + pedido.orderId + " — " + formatFechaHora(pedido.fecha, pedido.hora))}
     ${historialDetailRowHtml("Cliente", nombreCompleto)}
@@ -62,7 +67,7 @@ function renderHistorialDetail(pedido) {
     ${historialDetailRowHtml("WhatsApp", pedido.whatsapp)}
     ${historialDetailRowHtml("Email", pedido.email)}
     <div class="historial-items-list">${itemsHtml}</div>
-    ${pedido.mensaje ? `<p class="historial-mensaje">"${escapeHtml(pedido.mensaje)}"</p>` : ""}
+    ${mensajeHtml}
   `;
 }
 
@@ -73,19 +78,22 @@ function openHistorialDetail(pedido) {
   showHistorialView("detail");
 }
 
-/* ------------------------------------------------------------------------
-   Cargar un pedido del historial en el carrito, para editarlo. Devuelve
-   la lista de productos que NO se pudieron encontrar en el catálogo
-   actual (discontinuados, por ejemplo) — quedan anotados en el mensaje
-   en vez de perderse en silencio.
-   ------------------------------------------------------------------------ */
+// Normaliza un código de producto para comparar (a texto, sin ceros a la
+// izquierda) — Sheets puede guardar un código puramente numérico (ej.
+// "01036006") como el NÚMERO 1036006, perdiendo el cero inicial. Sin
+// esto, la comparación con el código del catálogo (que sí lo conserva
+// como texto) fallaba siempre, para cualquier producto.
+function normalizarCodigo(codigo) {
+  return String(codigo == null ? "" : codigo).trim().replace(/^0+(?=\d)/, "");
+}
+
 function cargarPedidoEnCarrito(pedido) {
   clearCart();
 
   const noEncontrados = [];
   pedido.items.forEach((item) => {
     const match = allProducts.find((p) => {
-      if (item.codigo && p.code) return p.code === item.codigo;
+      if (item.codigo && p.code) return normalizarCodigo(item.codigo) === normalizarCodigo(p.code);
       return !item.codigo && p.name === item.nombre;
     });
     if (match) {
@@ -118,7 +126,6 @@ function cargarPedidoEnCarrito(pedido) {
     const btn = addButtonEls[key];
     if (btn) setAddButtonDone(btn, false);
   });
-  updateCartFabCount();
 
   return noEncontrados;
 }
