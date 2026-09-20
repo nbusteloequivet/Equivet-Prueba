@@ -4,8 +4,11 @@
 
 let allProducts = [];
 
-let activeCategory = null;
-let activeLab = null;
+// Categorías y laboratorios activos: ahora son conjuntos (Set), no un
+// solo valor — permite tener varias categorías o varios laboratorios
+// tildados al mismo tiempo (filtro "OR" dentro de cada tipo).
+let activeCategories = new Set();
+let activeLabs = new Set();
 let activeSubcategory = null;
 let searchTerm = "";
 
@@ -21,10 +24,6 @@ let addButtonEls = {};
 
 let session = null;
 
-// Pedido que se está editando (viene de "Editar pedido" en Mi historial),
-// o null si el carrito es un pedido nuevo. Se manda al servidor junto con
-// el pedido para que Código.gs sepa que esto es una actualización y no
-// una cotización nueva — ver cart.js, submitOrderToServer.
 let editingOrderId = null;
 
 const els = {};
@@ -48,7 +47,6 @@ function cacheElements() {
   els.modalBody = document.getElementById("modal-body");
 
   els.cartFab = document.getElementById("cart-fab");
-  els.cartCount = document.getElementById("cart-count");
   els.cartModal = document.getElementById("cart-modal");
   els.cartTitle = document.getElementById("cart-title");
   els.cartItemsEl = document.getElementById("cart-items");
@@ -111,6 +109,8 @@ function cacheElements() {
   els.historialEmpty = document.getElementById("historial-empty");
   els.historialViewList = document.getElementById("historial-view-list");
   els.historialViewDetail = document.getElementById("historial-view-detail");
+  els.historialViewGuest = document.getElementById("historial-view-guest");
+  els.historialGuestLoginBtn = document.getElementById("historial-guest-login-btn");
   els.historialBackBtn = document.getElementById("historial-back-btn");
   els.historialDetailBody = document.getElementById("historial-detail-body");
   els.historialEditBtn = document.getElementById("historial-edit-btn");
