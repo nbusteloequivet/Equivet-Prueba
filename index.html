@@ -67,7 +67,7 @@
 
   <div class="how-to-use-wrap">
     <details class="how-to-use-banner">
-      <summary class="how-to-use-summary">Metodología de uso de la página</summary>
+      <summary class="how-to-use-summary">Cómo solicitar tu presupuesto<span class="how-to-use-arrow" aria-hidden="true">▾</span></summary>
       <div class="how-to-use-content">
         <ol>
           <li>Buscá el producto que necesites.</li>
@@ -147,17 +147,12 @@
   </section>
 </main>
 
-<!-- Botones flotantes: Mi historial (solo si está logueado — arranca
-     "hidden", ui.js lo muestra/oculta), Mi presupuesto y Contacto. El
-     orden acá abajo es el orden visual real: el primero en el HTML queda
-     arriba de la columna. -->
 <div class="fab-stack">
-  <button id="historial-fab" class="fab fab-secondary" type="button" aria-haspopup="dialog" hidden>
+  <button id="historial-fab" class="fab fab-secondary" type="button" aria-haspopup="dialog">
     Mi historial
   </button>
-  <button id="cart-fab" class="fab fab-primary" type="button" aria-haspopup="dialog">
-    Mi presupuesto
-    <span id="cart-count" class="cart-count" hidden>0</span>
+  <button id="cart-fab" class="fab fab-secondary" type="button" aria-haspopup="dialog">
+    Presupuesto rápido
   </button>
   <button id="contact-fab" class="fab fab-secondary" type="button">
     Contacto
@@ -185,7 +180,7 @@
         <label>Nombre*
           <input id="cart-nombre" type="text" autocomplete="given-name">
         </label>
-        <label>Apellido
+        <label>Apellido*
           <input id="cart-apellido" type="text" autocomplete="family-name">
         </label>
         <label>Entidad (si corresponde)
@@ -245,7 +240,7 @@
           <label>Nombre
             <input id="registro-nombre" type="text" autocomplete="given-name">
           </label>
-          <label>Apellido
+          <label>Apellido*
             <input id="registro-apellido" type="text" autocomplete="family-name">
           </label>
           <label>Email
@@ -272,15 +267,16 @@
   </div>
 </div>
 
-<!-- Modal de historial: 2 vistas (lista de tarjetas / detalle de un
-     pedido puntual), mismo patrón que account-modal. El botón "Editar
-     pedido" está pero todavía no hace nada real — avisa en pantalla que
-     es el próximo paso. -->
 <div id="historial-modal" class="modal-overlay" hidden>
   <div class="modal-content cart-modal-content" role="dialog" aria-modal="true" aria-labelledby="historial-title">
     <button class="modal-close" data-close-modal="historial-modal" aria-label="Cerrar">✕</button>
     <div class="cart-modal-inner">
       <h2 id="historial-title">Mi historial</h2>
+
+      <div id="historial-view-guest" class="historial-guest-prompt" hidden>
+        <p>Iniciá sesión o creá una cuenta para ver el historial completo de los pedidos de presupuesto que hiciste.</p>
+        <button id="historial-guest-login-btn" class="btn-provider" type="button">Iniciar sesión / Crear cuenta</button>
+      </div>
 
       <div id="historial-view-list">
         <div id="historial-list" class="historial-list"></div>
