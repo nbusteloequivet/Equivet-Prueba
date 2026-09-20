@@ -1,5 +1,5 @@
 /* =========================================================================
-   MAIN.JS — Punto de arranque.
+   MAIN.JS
    ========================================================================= */
 document.addEventListener("DOMContentLoaded", () => {
   cacheElements();
@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   session = loadSessionFromStorage();
   updateAccountButton();
+  if (session) autocompletarDatosCliente();
   setupAccountModal();
   setupHistorialModal();
 
