@@ -48,8 +48,6 @@ function esWhatsappValido(whatsapp) {
   return digits.length >= 8 && digits.length <= 15;
 }
 
-// Marca en rojo solo los campos que faltan completar — se limpia solo en
-// cada intento de envío (los que ya estén completos pierden el rojo).
 function marcarCamposConError(camposConError) {
   [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => {
     input.classList.toggle("field-error", camposConError.includes(input));
@@ -179,8 +177,8 @@ async function sendOrder() {
 
   if (enviado) {
     if (wasEditing) {
-      showCartStatus("¡Listo! Actualizamos tu pedido.", "success");
-      els.sendOrderBtn.textContent = "Pedido editado y enviado";
+      showCartStatus("Pedido editado y enviado", "success");
+      els.sendOrderBtn.textContent = "Enviar pedido";
     } else {
       showCartStatus("¡Listo! Tu pedido fue enviado.", "success");
     }
