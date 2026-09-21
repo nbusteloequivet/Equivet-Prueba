@@ -33,6 +33,7 @@ function clearCart() {
   editingOrderId = null;
   els.cartTitle.textContent = "Mi presupuesto";
   els.sendOrderBtn.textContent = "Enviar pedido";
+  els.cartFactura.checked = false;
   [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => input.classList.remove("field-error"));
   Object.keys(cartIndicatorEls).forEach(updateCartIndicator);
   Object.keys(addButtonEls).forEach(resetAddButton);
@@ -61,6 +62,7 @@ function prepareOrder() {
   const nombre = els.cartNombre.value.trim();
   const apellido = els.cartApellido.value.trim();
   const entidad = els.cartEntidad.value.trim();
+  const necesitaFactura = els.cartFactura.checked;
   const whatsapp = els.cartWhatsapp.value.trim();
   const email = els.cartEmail.value.trim();
   const mensaje = els.cartMensaje.value.trim();
@@ -92,9 +94,9 @@ function prepareOrder() {
 
   const orderId = String(Date.now());
 
-  const message = buildOrderMessage({ nombre, apellido, entidad, whatsapp, email, mensaje, items });
+  const message = buildOrderMessage({ nombre, apellido, entidad, necesitaFactura, whatsapp, email, mensaje, items });
 
-  return { orderId, nombre, apellido, entidad, whatsapp, email, mensaje, items, message };
+  return { orderId, nombre, apellido, entidad, necesitaFactura, whatsapp, email, mensaje, items, message };
 }
 
 function isAndroidDevice() {
@@ -196,7 +198,7 @@ async function sendOrder() {
   showCartStatus("No pudimos enviarlo automáticamente — se abrió Gmail con tu pedido cargado. Revisalo y tocá enviar desde ahí.", "error");
 }
 
-function buildOrderMessage({ nombre, apellido, entidad, whatsapp, email, mensaje, items }) {
+function buildOrderMessage({ nombre, apellido, entidad, necesitaFactura, whatsapp, email, mensaje, items }) {
   const lines = [];
   lines.push(`Pedido - ${CONFIG.LAB_NAME}`);
   lines.push("");
@@ -204,6 +206,7 @@ function buildOrderMessage({ nombre, apellido, entidad, whatsapp, email, mensaje
   if (entidad) lines.push(`Entidad: ${entidad}`);
   lines.push(`WhatsApp: ${whatsapp}`);
   lines.push(`Email: ${email}`);
+  lines.push(`Necesita factura: ${necesitaFactura ? "Sí" : "No"}`);
   lines.push("");
   if (items.length > 0) {
     lines.push("Productos:");
@@ -235,6 +238,7 @@ async function submitOrderToServer(order) {
     nombre: order.nombre,
     apellido: order.apellido,
     entidad: order.entidad,
+    necesitaFactura: order.necesitaFactura,
     whatsapp: order.whatsapp,
     email: order.email,
     mensaje: order.mensaje,
