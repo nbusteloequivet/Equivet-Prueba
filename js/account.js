@@ -1,7 +1,3 @@
-/* =========================================================================
-   ACCOUNT.JS — Login, registro y sesión del cliente.
-   ========================================================================= */
-
 const SESSION_STORAGE_KEY = "equivetSession";
 
 function loadSessionFromStorage() {
@@ -39,10 +35,6 @@ async function accountApiCall(params) {
   return response.json();
 }
 
-// Completa Nombre/Apellido/Email del formulario de pedido con los datos
-// de la cuenta logueada. WhatsApp y Entidad NO se tocan — no forman
-// parte de la cuenta (nunca se piden al registrarse), pueden variar de
-// un pedido a otro.
 function autocompletarDatosCliente() {
   if (!session) return;
   els.cartNombre.value = session.nombre || "";
@@ -75,7 +67,8 @@ async function submitLogin() {
     autocompletarDatosCliente();
     els.loginEmail.value = "";
     els.loginPassword.value = "";
-    showAccountLoggedView();
+    updateAccountButton();
+    closeModalEl(els.accountModal);
   } catch (err) {
     console.error("Error al iniciar sesión:", err);
     showAccountStatus(els.loginStatus, "No pudimos conectar — probá de nuevo en un momento.", "error");
