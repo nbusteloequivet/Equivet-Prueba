@@ -1,7 +1,3 @@
-/* =========================================================================
-   CART.JS — Lógica del pedido (el "carrito").
-   ========================================================================= */
-
 function safeInt(value) {
   const n = parseInt(value, 10);
   return isNaN(n) || n < 0 ? 0 : n;
@@ -36,6 +32,8 @@ function clearCart() {
   cart = {};
   editingOrderId = null;
   els.cartTitle.textContent = "Mi presupuesto";
+  els.sendOrderBtn.textContent = "Enviar pedido";
+  [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => input.classList.remove("field-error"));
   Object.keys(cartIndicatorEls).forEach(updateCartIndicator);
   Object.keys(addButtonEls).forEach(resetAddButton);
   renderCartModal();
@@ -48,6 +46,14 @@ function esEmailValido(email) {
 function esWhatsappValido(whatsapp) {
   const digits = whatsapp.replace(/\D/g, "");
   return digits.length >= 8 && digits.length <= 15;
+}
+
+// Marca en rojo solo los campos que faltan completar — se limpia solo en
+// cada intento de envío (los que ya estén completos pierden el rojo).
+function marcarCamposConError(camposConError) {
+  [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => {
+    input.classList.toggle("field-error", camposConError.includes(input));
+  });
 }
 
 function prepareOrder() {
@@ -65,7 +71,15 @@ function prepareOrder() {
     showCartStatus("Agregá productos al pedido o contanos en \"Mensaje adicional\" qué necesitás.", "error");
     return null;
   }
-  if (!nombre || !apellido || !whatsapp || !email) {
+
+  const camposFaltantes = [];
+  if (!nombre) camposFaltantes.push(els.cartNombre);
+  if (!apellido) camposFaltantes.push(els.cartApellido);
+  if (!whatsapp) camposFaltantes.push(els.cartWhatsapp);
+  if (!email) camposFaltantes.push(els.cartEmail);
+  marcarCamposConError(camposFaltantes);
+
+  if (camposFaltantes.length > 0) {
     showCartStatus("Completá tus datos antes de enviar.", "error");
     return null;
   }
@@ -164,7 +178,12 @@ async function sendOrder() {
   els.sendOrderBtn.disabled = false;
 
   if (enviado) {
-    showCartStatus(wasEditing ? "¡Listo! Actualizamos tu pedido." : "¡Listo! Tu pedido fue enviado.", "success");
+    if (wasEditing) {
+      showCartStatus("¡Listo! Actualizamos tu pedido.", "success");
+      els.sendOrderBtn.textContent = "Pedido editado y enviado";
+    } else {
+      showCartStatus("¡Listo! Tu pedido fue enviado.", "success");
+    }
     editingOrderId = null;
     els.cartTitle.textContent = "Mi presupuesto";
     return;
