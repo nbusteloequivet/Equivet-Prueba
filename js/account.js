@@ -53,7 +53,13 @@ async function submitLogin() {
     return;
   }
 
+  // Aviso inmediato de que ya está trabajando — Apps Script tarda un
+  // par de segundos en responder (es normal de la plataforma, no algo
+  // que se pueda acelerar desde acá), así que sin este cartel la espera
+  // se siente como si el botón no hubiera hecho nada.
   els.loginSubmitBtn.disabled = true;
+  const textoOriginalLogin = els.loginSubmitBtn.textContent;
+  els.loginSubmitBtn.textContent = "Verificando…";
   try {
     const data = await accountApiCall({ action: "login", email, password });
 
@@ -74,6 +80,7 @@ async function submitLogin() {
     showAccountStatus(els.loginStatus, "No pudimos conectar — probá de nuevo en un momento.", "error");
   } finally {
     els.loginSubmitBtn.disabled = false;
+    els.loginSubmitBtn.textContent = textoOriginalLogin;
   }
 }
 
@@ -121,6 +128,89 @@ function logout() {
   clearSessionFromStorage();
   showAccountView("login");
   updateAccountButton();
+}
+
+/* ------------------------------------------------------------------------
+   Contraseña olvidada
+   ------------------------------------------------------------------------ */
+
+// Token capturado desde la URL (?resetToken=...) cuando el cliente entra
+// al sitio desde el link que le llegó por mail. Se guarda en memoria
+// (no en localStorage) — solo hace falta para el envío del formulario de
+// "nueva contraseña" de esta misma visita.
+let resetToken = null;
+
+function detectarResetTokenEnURL() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("resetToken");
+  if (token) {
+    resetToken = token;
+    // Se limpia la URL después de leerla — así el token no queda dando
+    // vueltas a la vista ni se reintenta solo si recargan la página.
+    history.replaceState(null, "", window.location.pathname);
+    return true;
+  }
+  return false;
+}
+
+async function submitForgotPassword() {
+  hideAccountStatus(els.forgotStatus);
+
+  const email = els.forgotEmail.value.trim();
+  if (!email) {
+    showAccountStatus(els.forgotStatus, "Completá tu email.", "error");
+    return;
+  }
+
+  els.forgotSubmitBtn.disabled = true;
+  try {
+    await accountApiCall({ action: "solicitarRecuperacion", email });
+    els.forgotEmail.value = "";
+    showAccountStatus(els.forgotStatus, "Si ese email está registrado, te llegó un enlace para restablecer tu contraseña.", "success");
+  } catch (err) {
+    console.error("Error al pedir recuperación de contraseña:", err);
+    showAccountStatus(els.forgotStatus, "No pudimos conectar — probá de nuevo en un momento.", "error");
+  } finally {
+    els.forgotSubmitBtn.disabled = false;
+  }
+}
+
+async function submitResetPassword() {
+  hideAccountStatus(els.resetStatus);
+
+  const newPassword = els.resetPassword.value;
+  if (newPassword.length < 8) {
+    showAccountStatus(els.resetStatus, "La contraseña tiene que tener al menos 8 caracteres.", "error");
+    return;
+  }
+  if (!resetToken) {
+    showAccountStatus(els.resetStatus, "El enlace no es válido — pedí uno nuevo desde \"¿Olvidaste tu contraseña?\".", "error");
+    return;
+  }
+
+  els.resetSubmitBtn.disabled = true;
+  try {
+    const data = await accountApiCall({ action: "restablecerPassword", resetToken, newPassword });
+
+    if (!data.ok) {
+      const mensaje = data.error === "token_vencido"
+        ? "El enlace venció — pedí uno nuevo desde \"¿Olvidaste tu contraseña?\"."
+        : "El enlace no es válido — pedí uno nuevo desde \"¿Olvidaste tu contraseña?\".";
+      showAccountStatus(els.resetStatus, mensaje, "error");
+      return;
+    }
+
+    resetToken = null;
+    els.resetPassword.value = "";
+    els.loginEmail.value = data.email || "";
+    showAccountView("login");
+    showAccountStatus(els.loginStatus, "Contraseña actualizada — iniciá sesión con la nueva.", "success");
+  } catch (err) {
+    console.error("Error al restablecer la contraseña:", err);
+    showAccountStatus(els.resetStatus, "No pudimos conectar — probá de nuevo en un momento.", "error");
+  } finally {
+    els.resetSubmitBtn.disabled = false;
+  }
 }
 
 function mensajeErrorCuenta(codigo) {
