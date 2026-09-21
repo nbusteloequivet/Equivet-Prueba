@@ -46,10 +46,10 @@ a { color: var(--accent); }
   border: none;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--accent);
   cursor: pointer;
-  padding: 8px 6px;
+  padding: 9px 6px;
   z-index: 5;
 }
 .account-corner-btn:hover { text-decoration: underline; }
@@ -125,8 +125,6 @@ a { color: var(--accent); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-.how-to-use-summary {
   list-style: none;
 }
 .how-to-use-summary::-webkit-details-marker {
@@ -140,10 +138,9 @@ a { color: var(--accent); }
   outline-offset: 3px;
   border-radius: 2px;
 }
-/* Flechita mínima que indica que es un desplegable — rota al abrirlo. */
 .how-to-use-arrow {
   display: inline-block;
-  font-size: 10px;
+  font-size: 14px;
   color: var(--accent);
   transition: transform 0.15s ease;
   margin-left: 10px;
@@ -152,8 +149,17 @@ a { color: var(--accent); }
 .how-to-use-banner[open] .how-to-use-arrow {
   transform: rotate(180deg);
 }
+/* Antes era display:none/block instantáneo (comportamiento nativo del
+   <details>) — ahora se anima con max-height, controlado a mano desde
+   ui.js (setupHowToUseAnimation), porque un <details> nativo no se puede
+   animar directo. El padding-top (no margin-top) es a propósito: así se
+   achica junto con el contenido al cerrar, sin dejar un huequito fijo. */
 .how-to-use-content {
-  margin-top: 12px;
+  margin-top: 0;
+  padding-top: 12px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.22s ease;
 }
 .how-to-use-content ol {
   margin: 0 0 12px;
@@ -246,6 +252,21 @@ a { color: var(--accent); }
   transform: rotate(180deg);
 }
 
+/* Paneles desplegables (categorías, subcategorías, laboratorios) — se
+   animan con max-height + opacidad en vez de aparecer de golpe. La
+   clase .chips-panel-open la agrega/saca ui.js (openFilterPanelAnimated/
+   closeFilterPanelAnimated); "hidden" se sigue usando para sacarlo del
+   todo de la navegación una vez que termina de cerrarse. */
+.chips-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.22s ease, opacity 0.18s ease;
+}
+.chips-panel.chips-panel-open {
+  max-height: 600px;
+  opacity: 1;
+}
 .chips-panel[hidden] {
   display: none;
 }
@@ -313,9 +334,6 @@ a { color: var(--accent); }
 
 .card-strip { height: 6px; width: 100%; }
 
-/* Cartelito de disponibilidad — arriba a la derecha, superpuesto sobre
-   la imagen. pointer-events:none para que no tape el click de abrir el
-   detalle del producto. */
 .card-avail-badge {
   position: absolute;
   top: 12px;
@@ -386,10 +404,6 @@ a { color: var(--accent); }
   text-overflow: ellipsis;
 }
 
-/* Divisoria antes de la fila de cantidad/Agregar — antes vivía en un
-   .card-footer aparte que solo contenía el cartelito de disponibilidad;
-   ahora ese cartelito se muestra arriba a la derecha (.card-avail-badge)
-   y esta línea se absorbe directo acá. */
 .card-bottom {
   margin-top: auto;
   padding-top: 10px;
@@ -780,6 +794,11 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 }
 .cart-form input:focus-visible, .cart-form textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
+/* Campo con error puntual (falta completar) — mismo rojo de siempre. */
+.cart-form input.field-error {
+  border-color: #e63946;
+}
+
 .cart-status {
   font-size: 13px;
   padding: 10px 12px;
@@ -787,8 +806,6 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   border-radius: 3px;
   text-align: center;
 }
-/* Rojo, no negro/violeta — para que un error se distinga de un mensaje
-   de éxito o informativo a simple vista. */
 .cart-status.error { border-color: #e63946; color: #b3001b; background: #fff3f3; }
 .cart-status.success { border-color: var(--accent); color: var(--accent); }
 
@@ -832,16 +849,27 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 .btn-secondary { background: var(--paper); color: var(--ink); }
 .btn-secondary:hover { background: var(--line); }
 
+/* Botón de cerrar sesión — minimalista, rojo, sin relleno. */
+.btn-logout {
+  width: 100%;
+  background: none;
+  border: 1.5px solid #e63946;
+  color: #b3001b;
+  border-radius: 4px;
+  padding: 9px 14px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.btn-logout:hover { background: #fff3f3; }
+
 /* ---------- Modal de cuenta ---------- */
 .account-modal-content { max-width: 420px; }
 
 .account-modal-inner { padding: 34px 30px 28px; display: flex; flex-direction: column; gap: 16px; }
 .account-modal-inner h2 { font-family: var(--font-display); font-size: 22px; margin: 0; text-align: center; }
 .account-modal-inner > div { display: flex; flex-direction: column; gap: 14px; }
-/* Sin esto, un div oculto (atributo "hidden") igual se mostraba, porque
-   la regla de arriba (display:flex) le gana al estilo por defecto del
-   navegador para "hidden" — mismo tipo de bug que ya tuvimos con los
-   paneles de filtros y con los modales en general. */
 .account-modal-inner > div[hidden] { display: none; }
 
 .account-fields { display: flex; flex-direction: column; gap: 10px; }
@@ -876,8 +904,16 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 
 /* ---------- Modal de historial ---------- */
 
-.historial-guest-prompt { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; padding: 10px 0; }
+.historial-guest-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 10px 0;
+}
 .historial-guest-prompt p { margin: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+.historial-guest-prompt[hidden] { display: none; }
 
 .historial-list { display: flex; flex-direction: column; gap: 10px; }
 
@@ -943,7 +979,12 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   margin: 0;
 }
 
-#historial-back-btn { margin-bottom: 4px; }
+/* Sin subrayado puntualmente en este link (no en los otros que usan
+   .link-btn, esos quedan igual). */
+#historial-back-btn {
+  margin-bottom: 4px;
+  text-decoration: none;
+}
 
 /* ---------- Responsive general ---------- */
 
@@ -960,7 +1001,7 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   .brand-emblem img { height: 130px; }
   .fab-stack { right: 14px; bottom: 14px; gap: 8px; }
   .fab { padding: 10px 16px; font-size: 12.5px; }
-  .account-corner-btn { top: 10px; right: 14px; font-size: 13px; }
+  .account-corner-btn { top: 10px; right: 14px; font-size: 14.5px; }
 
   .card-cart-row {
     flex-direction: column;
@@ -990,47 +1031,4 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   html { scroll-behavior: auto; }
-}
-/* ---------- Retoques de esta tanda ---------- */
-
-/* Flechita del desplegable "Cómo solicitar tu presupuesto" un poco más grande. */
-.how-to-use-arrow {
-  font-size: 14px;
-}
-
-/* Botón de cuenta un poco más grande otra vez. */
-.account-corner-btn {
-  font-size: 16px;
-  padding: 9px 6px;
-}
-@media (max-width: 560px) {
-  .account-corner-btn { font-size: 14.5px; }
-}
-
-/* "Cerrar sesión" — minimalista, rojo, sin relleno pesado. */
-.btn-logout {
-  width: 100%;
-  background: none;
-  border: 1.5px solid #e63946;
-  color: #b3001b;
-  border-radius: 4px;
-  padding: 9px 14px;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 13.5px;
-  cursor: pointer;
-}
-.btn-logout:hover { background: #fff3f3; }
-
-/* Campo con error puntual (falta completar) — borde rojo, mismo rojo de
-   siempre. Se aplica/saca solo, cada vez que se intenta enviar. */
-.cart-form input.field-error {
-  border-color: #e63946;
-}
-
-/* Mismo bug de "hidden" que ya vimos 2 veces — .historial-guest-prompt
-   tiene su propio display:flex, así que necesita esta excepción para que
-   el atributo "hidden" lo pueda ocultar de verdad. */
-.historial-guest-prompt[hidden] {
-  display: none;
 }
