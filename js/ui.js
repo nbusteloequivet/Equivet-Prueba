@@ -34,7 +34,7 @@ function updateSubcategoryChips() {
   if (activeCategories.size !== 1) {
     activeSubcategory = null;
     els.subcategoryChips.innerHTML = "";
-    els.subcategoryChips.hidden = true;
+    closeFilterPanelAnimated(els.subcategoryChips);
     return;
   }
 
@@ -44,7 +44,7 @@ function updateSubcategoryChips() {
   if (subcats.length === 0) {
     activeSubcategory = null;
     els.subcategoryChips.innerHTML = "";
-    els.subcategoryChips.hidden = true;
+    closeFilterPanelAnimated(els.subcategoryChips);
     return;
   }
 
@@ -53,7 +53,7 @@ function updateSubcategoryChips() {
   }
 
   renderSubcategoryChips(subcats);
-  els.subcategoryChips.hidden = false;
+  openFilterPanelAnimated(els.subcategoryChips);
 }
 
 function renderSubcategoryChips(subcats) {
@@ -95,13 +95,31 @@ function makeChip(label, isActive, onClick) {
   return chip;
 }
 
+const PANEL_TRANSITION_MS = 220;
+
+function openFilterPanelAnimated(panelEl) {
+  panelEl.hidden = false;
+  requestAnimationFrame(() => {
+    panelEl.classList.add("chips-panel-open");
+  });
+}
+
+function closeFilterPanelAnimated(panelEl) {
+  panelEl.classList.remove("chips-panel-open");
+  setTimeout(() => {
+    if (!panelEl.classList.contains("chips-panel-open")) {
+      panelEl.hidden = true;
+    }
+  }, PANEL_TRANSITION_MS);
+}
+
 function setupFilterToggles() {
   setupFilterToggle(els.categoryToggle, els.categoryChips);
   setupFilterToggle(els.labToggle, els.labChips);
 
   els.categoryToggle.addEventListener("click", () => {
     if (els.categoryToggle.getAttribute("aria-expanded") !== "true") {
-      els.subcategoryChips.hidden = true;
+      closeFilterPanelAnimated(els.subcategoryChips);
     }
   });
 }
@@ -113,14 +131,42 @@ function setupFilterToggle(toggleBtn, panelEl) {
       closeFilterPanel(toggleBtn, panelEl);
     } else {
       toggleBtn.setAttribute("aria-expanded", "true");
-      panelEl.hidden = false;
+      openFilterPanelAnimated(panelEl);
     }
   });
 }
 
 function closeFilterPanel(toggleBtn, panelEl) {
   toggleBtn.setAttribute("aria-expanded", "false");
-  panelEl.hidden = true;
+  closeFilterPanelAnimated(panelEl);
+}
+
+function setupHowToUseAnimation() {
+  const details = document.querySelector(".how-to-use-banner");
+  if (!details) return;
+  const summary = details.querySelector(".how-to-use-summary");
+  const content = details.querySelector(".how-to-use-content");
+  if (!summary || !content) return;
+
+  summary.addEventListener("click", (e) => {
+    e.preventDefault();
+    const isOpen = details.hasAttribute("open");
+    if (isOpen) {
+      content.style.maxHeight = content.scrollHeight + "px";
+      requestAnimationFrame(() => {
+        content.style.maxHeight = "0px";
+      });
+      setTimeout(() => {
+        if (content.style.maxHeight === "0px") details.removeAttribute("open");
+      }, PANEL_TRANSITION_MS);
+    } else {
+      details.setAttribute("open", "");
+      content.style.maxHeight = "0px";
+      requestAnimationFrame(() => {
+        content.style.maxHeight = content.scrollHeight + "px";
+      });
+    }
+  });
 }
 
 function renderGrid() {
@@ -560,6 +606,15 @@ function setupAccountModal() {
       if (e.key === "Enter") {
         e.preventDefault();
         submitLogin();
+      }
+    });
+  });
+
+  [els.registroNombre, els.registroApellido, els.registroEmail, els.registroPassword].forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitRegistro();
       }
     });
   });
