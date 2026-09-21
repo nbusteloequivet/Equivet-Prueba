@@ -30,11 +30,14 @@ function buildCategoryChips() {
   })));
 }
 
+// Solo muestra el panel de subcategorías cuando hay EXACTAMENTE una
+// categoría tildada — con 0 o 2+ categorías, "subcategorías de cuál?" es
+// ambiguo, así que el panel se oculta.
 function updateSubcategoryChips() {
   if (activeCategories.size !== 1) {
     activeSubcategory = null;
     els.subcategoryChips.innerHTML = "";
-    closeFilterPanelAnimated(els.subcategoryChips);
+    setChipsPanelOpen(els.subcategoryChipsWrap, false);
     return;
   }
 
@@ -44,7 +47,7 @@ function updateSubcategoryChips() {
   if (subcats.length === 0) {
     activeSubcategory = null;
     els.subcategoryChips.innerHTML = "";
-    closeFilterPanelAnimated(els.subcategoryChips);
+    setChipsPanelOpen(els.subcategoryChipsWrap, false);
     return;
   }
 
@@ -53,7 +56,7 @@ function updateSubcategoryChips() {
   }
 
   renderSubcategoryChips(subcats);
-  openFilterPanelAnimated(els.subcategoryChips);
+  setChipsPanelOpen(els.subcategoryChipsWrap, true);
 }
 
 function renderSubcategoryChips(subcats) {
@@ -95,77 +98,45 @@ function makeChip(label, isActive, onClick) {
   return chip;
 }
 
-const PANEL_TRANSITION_MS = 220;
-
-function openFilterPanelAnimated(panelEl) {
-  panelEl.hidden = false;
-  requestAnimationFrame(() => {
-    panelEl.classList.add("chips-panel-open");
-  });
-}
-
-function closeFilterPanelAnimated(panelEl) {
-  panelEl.classList.remove("chips-panel-open");
-  setTimeout(() => {
-    if (!panelEl.classList.contains("chips-panel-open")) {
-      panelEl.hidden = true;
-    }
-  }, PANEL_TRANSITION_MS);
+/* ------------------------------------------------------------------------
+   Paneles desplegables — ahora se animan 100% con CSS (ver
+   .chips-panel-wrap en style.css, técnica de CSS Grid 0fr -> 1fr). Acá
+   solo hace falta agregar/sacar una clase, nada de medir alturas a mano
+   ni de coordinar rAF/setTimeout — por eso ya no queda "trabado".
+   ------------------------------------------------------------------------ */
+function setChipsPanelOpen(wrapEl, open) {
+  wrapEl.classList.toggle("open", open);
 }
 
 function setupFilterToggles() {
-  setupFilterToggle(els.categoryToggle, els.categoryChips);
-  setupFilterToggle(els.labToggle, els.labChips);
+  setupFilterToggle(els.categoryToggle, els.categoryChipsWrap);
+  setupFilterToggle(els.labToggle, els.labChipsWrap);
 
   els.categoryToggle.addEventListener("click", () => {
     if (els.categoryToggle.getAttribute("aria-expanded") !== "true") {
-      closeFilterPanelAnimated(els.subcategoryChips);
+      setChipsPanelOpen(els.subcategoryChipsWrap, false);
     }
   });
 }
 
-function setupFilterToggle(toggleBtn, panelEl) {
+function setupFilterToggle(toggleBtn, wrapEl) {
   toggleBtn.addEventListener("click", () => {
     const isOpen = toggleBtn.getAttribute("aria-expanded") === "true";
-    if (isOpen) {
-      closeFilterPanel(toggleBtn, panelEl);
-    } else {
-      toggleBtn.setAttribute("aria-expanded", "true");
-      openFilterPanelAnimated(panelEl);
-    }
+    toggleBtn.setAttribute("aria-expanded", String(!isOpen));
+    setChipsPanelOpen(wrapEl, !isOpen);
   });
 }
 
-function closeFilterPanel(toggleBtn, panelEl) {
-  toggleBtn.setAttribute("aria-expanded", "false");
-  closeFilterPanelAnimated(panelEl);
-}
-
+/* ------------------------------------------------------------------------
+   "Cómo solicitar tu presupuesto" — mismo mecanismo que los paneles de
+   arriba (CSS Grid, ver .how-to-use-panel-wrap): togglear aria-expanded
+   alcanza, el CSS hace el resto solo.
+   ------------------------------------------------------------------------ */
 function setupHowToUseAnimation() {
-  const details = document.querySelector(".how-to-use-banner");
-  if (!details) return;
-  const summary = details.querySelector(".how-to-use-summary");
-  const content = details.querySelector(".how-to-use-content");
-  if (!summary || !content) return;
-
-  summary.addEventListener("click", (e) => {
-    e.preventDefault();
-    const isOpen = details.hasAttribute("open");
-    if (isOpen) {
-      content.style.maxHeight = content.scrollHeight + "px";
-      requestAnimationFrame(() => {
-        content.style.maxHeight = "0px";
-      });
-      setTimeout(() => {
-        if (content.style.maxHeight === "0px") details.removeAttribute("open");
-      }, PANEL_TRANSITION_MS);
-    } else {
-      details.setAttribute("open", "");
-      content.style.maxHeight = "0px";
-      requestAnimationFrame(() => {
-        content.style.maxHeight = content.scrollHeight + "px";
-      });
-    }
+  if (!els.howToUseToggle) return;
+  els.howToUseToggle.addEventListener("click", () => {
+    const isOpen = els.howToUseToggle.getAttribute("aria-expanded") === "true";
+    els.howToUseToggle.setAttribute("aria-expanded", String(!isOpen));
   });
 }
 
@@ -562,6 +533,8 @@ function hideAccountStatus(el) {
 const ACCOUNT_VIEWS = {
   login: { el: () => els.accountViewLogin, title: "Iniciar sesión" },
   registro: { el: () => els.accountViewRegistro, title: "Crear cuenta" },
+  forgot: { el: () => els.accountViewForgot, title: "Recuperar contraseña" },
+  reset: { el: () => els.accountViewReset, title: "Nueva contraseña" },
   verificar: { el: () => els.accountViewVerificar, title: "Revisá tu correo" },
   logged: { el: () => els.accountViewLogged, title: "Mi cuenta" },
 };
@@ -596,28 +569,27 @@ function setupAccountModal() {
 
   els.showRegistroBtn.addEventListener("click", () => showAccountView("registro"));
   els.showLoginBtn.addEventListener("click", () => showAccountView("login"));
+  els.showForgotBtn.addEventListener("click", () => showAccountView("forgot"));
+  els.showLoginFromForgotBtn.addEventListener("click", () => showAccountView("login"));
 
   els.loginSubmitBtn.addEventListener("click", submitLogin);
   els.registroSubmitBtn.addEventListener("click", submitRegistro);
+  els.forgotSubmitBtn.addEventListener("click", submitForgotPassword);
+  els.resetSubmitBtn.addEventListener("click", submitResetPassword);
   els.accountLogoutBtn.addEventListener("click", logout);
 
-  [els.loginEmail, els.loginPassword].forEach((input) => {
+  const conectarEnter = (input, submitFn) => {
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        submitLogin();
+        submitFn();
       }
     });
-  });
-
-  [els.registroNombre, els.registroApellido, els.registroEmail, els.registroPassword].forEach((input) => {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        submitRegistro();
-      }
-    });
-  });
+  };
+  [els.loginEmail, els.loginPassword].forEach((input) => conectarEnter(input, submitLogin));
+  [els.registroNombre, els.registroApellido, els.registroEmail, els.registroPassword].forEach((input) => conectarEnter(input, submitRegistro));
+  conectarEnter(els.forgotEmail, submitForgotPassword);
+  conectarEnter(els.resetPassword, submitResetPassword);
 }
 
 const HISTORIAL_VIEWS = {
