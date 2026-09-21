@@ -60,6 +60,7 @@ function renderHistorialDetail(pedido) {
     ${historialDetailRowHtml("Pedido", "#" + pedido.orderId + " — " + formatFechaHora(pedido.fecha, pedido.hora))}
     ${historialDetailRowHtml("Cliente", nombreCompleto)}
     ${historialDetailRowHtml("Entidad", pedido.entidad)}
+    ${historialDetailRowHtml("Necesita factura", pedido.necesitaFactura ? "Sí" : "No")}
     ${historialDetailRowHtml("WhatsApp", pedido.whatsapp)}
     ${historialDetailRowHtml("Email", pedido.email)}
     <div class="historial-items-list">${itemsHtml}</div>
@@ -98,6 +99,7 @@ function cargarPedidoEnCarrito(pedido) {
   els.cartNombre.value = pedido.nombre || "";
   els.cartApellido.value = pedido.apellido || "";
   els.cartEntidad.value = pedido.entidad || "";
+  els.cartFactura.checked = Boolean(pedido.necesitaFactura);
   els.cartWhatsapp.value = pedido.whatsapp || "";
   els.cartEmail.value = pedido.email || "";
 
