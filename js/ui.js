@@ -1,7 +1,3 @@
-/* =========================================================================
-   UI.JS — Todo lo que dibuja cosas en pantalla.
-   ========================================================================= */
-
 function setupSearch() {
   let debounceTimer;
   els.searchInput.addEventListener("input", (e) => {
@@ -34,9 +30,6 @@ function buildCategoryChips() {
   })));
 }
 
-// Solo muestra el panel de subcategorías cuando hay EXACTAMENTE una
-// categoría tildada — con 0 o 2+ categorías, "subcategorías de cuál?" es
-// ambiguo, así que el panel se oculta.
 function updateSubcategoryChips() {
   if (activeCategories.size !== 1) {
     activeSubcategory = null;
@@ -561,6 +554,15 @@ function setupAccountModal() {
   els.loginSubmitBtn.addEventListener("click", submitLogin);
   els.registroSubmitBtn.addEventListener("click", submitRegistro);
   els.accountLogoutBtn.addEventListener("click", logout);
+
+  [els.loginEmail, els.loginPassword].forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitLogin();
+      }
+    });
+  });
 }
 
 const HISTORIAL_VIEWS = {
