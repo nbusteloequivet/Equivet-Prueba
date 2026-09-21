@@ -991,3 +991,46 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   html { scroll-behavior: auto; }
 }
+/* ---------- Retoques de esta tanda ---------- */
+
+/* Flechita del desplegable "Cómo solicitar tu presupuesto" un poco más grande. */
+.how-to-use-arrow {
+  font-size: 14px;
+}
+
+/* Botón de cuenta un poco más grande otra vez. */
+.account-corner-btn {
+  font-size: 16px;
+  padding: 9px 6px;
+}
+@media (max-width: 560px) {
+  .account-corner-btn { font-size: 14.5px; }
+}
+
+/* "Cerrar sesión" — minimalista, rojo, sin relleno pesado. */
+.btn-logout {
+  width: 100%;
+  background: none;
+  border: 1.5px solid #e63946;
+  color: #b3001b;
+  border-radius: 4px;
+  padding: 9px 14px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.btn-logout:hover { background: #fff3f3; }
+
+/* Campo con error puntual (falta completar) — borde rojo, mismo rojo de
+   siempre. Se aplica/saca solo, cada vez que se intenta enviar. */
+.cart-form input.field-error {
+  border-color: #e63946;
+}
+
+/* Mismo bug de "hidden" que ya vimos 2 veces — .historial-guest-prompt
+   tiene su propio display:flex, así que necesita esta excepción para que
+   el atributo "hidden" lo pueda ocultar de verdad. */
+.historial-guest-prompt[hidden] {
+  display: none;
+}
