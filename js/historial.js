@@ -1,7 +1,3 @@
-/* =========================================================================
-   HISTORIAL.JS
-   ========================================================================= */
-
 let currentHistorialPedido = null;
 
 async function fetchMisPedidos() {
@@ -78,11 +74,6 @@ function openHistorialDetail(pedido) {
   showHistorialView("detail");
 }
 
-// Normaliza un código de producto para comparar (a texto, sin ceros a la
-// izquierda) — Sheets puede guardar un código puramente numérico (ej.
-// "01036006") como el NÚMERO 1036006, perdiendo el cero inicial. Sin
-// esto, la comparación con el código del catálogo (que sí lo conserva
-// como texto) fallaba siempre, para cualquier producto.
 function normalizarCodigo(codigo) {
   return String(codigo == null ? "" : codigo).trim().replace(/^0+(?=\d)/, "");
 }
@@ -120,6 +111,7 @@ function cargarPedidoEnCarrito(pedido) {
 
   editingOrderId = pedido.orderId;
   els.cartTitle.textContent = "Editando pedido #" + pedido.orderId;
+  els.sendOrderBtn.textContent = "Editar y enviar pedido";
 
   Object.keys(cart).forEach((key) => {
     updateCartIndicator(key);
