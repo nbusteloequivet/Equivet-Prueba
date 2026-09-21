@@ -1,6 +1,3 @@
-/* =========================================================================
-   MAIN.JS
-   ========================================================================= */
 document.addEventListener("DOMContentLoaded", () => {
   cacheElements();
 
@@ -10,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setupSearch();
   setupFilterToggles();
+  setupHowToUseAnimation();
   setupModalClosers();
   setupCartModal();
   setupAutoGrowTextarea(els.cartMensaje);
@@ -21,6 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (session) autocompletarDatosCliente();
   setupAccountModal();
   setupHistorialModal();
+
+  // Si llegó desde el link del mail de "contraseña olvidada"
+  // (?resetToken=...), abre directo el modal de cuenta en la vista de
+  // "elegir nueva contraseña" — ver detectarResetTokenEnURL en account.js.
+  if (detectarResetTokenEnURL()) {
+    showAccountView("reset");
+    openModalEl(els.accountModal);
+  }
 
   loadCatalog();
   setInterval(loadCatalog, CONFIG.AUTO_REFRESH_MS);
