@@ -4,9 +4,6 @@
 
 let allProducts = [];
 
-// Categorías y laboratorios activos: ahora son conjuntos (Set), no un
-// solo valor — permite tener varias categorías o varios laboratorios
-// tildados al mismo tiempo (filtro "OR" dentro de cada tipo).
 let activeCategories = new Set();
 let activeLabs = new Set();
 let activeSubcategory = null;
@@ -33,15 +30,23 @@ function cacheElements() {
   els.statusBanner = document.getElementById("status-banner");
   els.emptyState = document.getElementById("empty-state");
   els.searchInput = document.getElementById("search-input");
+
+  els.categoryChipsWrap = document.getElementById("category-chips-wrap");
   els.categoryChips = document.getElementById("category-chips");
+  els.subcategoryChipsWrap = document.getElementById("subcategory-chips-wrap");
   els.subcategoryChips = document.getElementById("subcategory-chips");
+  els.labChipsWrap = document.getElementById("lab-chips-wrap");
   els.labChips = document.getElementById("lab-chips");
+
   els.categoryToggle = document.getElementById("category-toggle");
   els.labToggle = document.getElementById("lab-toggle");
   els.labName = document.getElementById("lab-name");
   els.labSub = document.getElementById("lab-sub");
   els.logoImg = document.getElementById("brand-logo");
   els.loadingBanner = document.getElementById("loading-products-banner");
+
+  els.howToUseToggle = document.getElementById("how-to-use-toggle");
+  els.howToUsePanelWrap = document.getElementById("how-to-use-panel-wrap");
 
   els.productModal = document.getElementById("product-modal");
   els.modalBody = document.getElementById("modal-body");
@@ -54,6 +59,7 @@ function cacheElements() {
   els.cartNombre = document.getElementById("cart-nombre");
   els.cartApellido = document.getElementById("cart-apellido");
   els.cartEntidad = document.getElementById("cart-entidad");
+  els.cartFactura = document.getElementById("cart-factura");
   els.cartWhatsapp = document.getElementById("cart-whatsapp");
   els.cartEmail = document.getElementById("cart-email");
   els.cartMensaje = document.getElementById("cart-mensaje");
@@ -83,6 +89,8 @@ function cacheElements() {
 
   els.accountViewLogin = document.getElementById("account-view-login");
   els.accountViewRegistro = document.getElementById("account-view-registro");
+  els.accountViewForgot = document.getElementById("account-view-forgot");
+  els.accountViewReset = document.getElementById("account-view-reset");
   els.accountViewVerificar = document.getElementById("account-view-verificar");
   els.accountViewLogged = document.getElementById("account-view-logged");
 
@@ -91,6 +99,7 @@ function cacheElements() {
   els.loginStatus = document.getElementById("login-status");
   els.loginSubmitBtn = document.getElementById("login-submit-btn");
   els.showRegistroBtn = document.getElementById("show-registro-btn");
+  els.showForgotBtn = document.getElementById("show-forgot-btn");
 
   els.registroNombre = document.getElementById("registro-nombre");
   els.registroApellido = document.getElementById("registro-apellido");
@@ -99,6 +108,15 @@ function cacheElements() {
   els.registroStatus = document.getElementById("registro-status");
   els.registroSubmitBtn = document.getElementById("registro-submit-btn");
   els.showLoginBtn = document.getElementById("show-login-btn");
+
+  els.forgotEmail = document.getElementById("forgot-email");
+  els.forgotStatus = document.getElementById("forgot-status");
+  els.forgotSubmitBtn = document.getElementById("forgot-submit-btn");
+  els.showLoginFromForgotBtn = document.getElementById("show-login-from-forgot-btn");
+
+  els.resetPassword = document.getElementById("reset-password");
+  els.resetStatus = document.getElementById("reset-status");
+  els.resetSubmitBtn = document.getElementById("reset-submit-btn");
 
   els.accountGreetingName = document.getElementById("account-greeting-name");
   els.accountLogoutBtn = document.getElementById("account-logout-btn");
