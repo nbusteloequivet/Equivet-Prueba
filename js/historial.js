@@ -20,7 +20,7 @@ function buildHistorialCard(pedido) {
   card.type = "button";
   card.className = "historial-card";
   card.innerHTML = `
-    <span class="historial-card-date">Pedido #${escapeHtml(String(pedido.orderId))} — ${escapeHtml(formatFechaHora(pedido.fecha, pedido.hora))}</span>
+    <span class="historial-card-date">Pedido #${escapeHtml(String(pedido.numeroPedidoCliente))} — ${escapeHtml(formatFechaHora(pedido.fecha, pedido.hora))}</span>
     <span class="historial-card-arrow" aria-hidden="true">→</span>
   `;
   card.addEventListener("click", () => openHistorialDetail(pedido));
@@ -57,7 +57,7 @@ function renderHistorialDetail(pedido) {
     : "";
 
   els.historialDetailBody.innerHTML = `
-    ${historialDetailRowHtml("Pedido", "#" + pedido.orderId + " — " + formatFechaHora(pedido.fecha, pedido.hora))}
+    ${historialDetailRowHtml("Pedido", "#" + pedido.numeroPedidoCliente + " — " + formatFechaHora(pedido.fecha, pedido.hora))}
     ${historialDetailRowHtml("Cliente", nombreCompleto)}
     ${historialDetailRowHtml("Entidad", pedido.entidad)}
     ${historialDetailRowHtml("Necesita factura", pedido.necesitaFactura ? "Sí" : "No")}
@@ -112,8 +112,9 @@ function cargarPedidoEnCarrito(pedido) {
   els.cartMensaje.value = mensaje;
 
   editingOrderId = pedido.orderId;
-  els.cartTitle.textContent = "Editando pedido #" + pedido.orderId;
+  els.cartTitle.textContent = "Editando pedido #" + pedido.numeroPedidoCliente;
   els.sendOrderBtn.textContent = "Editar y enviar pedido";
+  els.cartFab.textContent = "Pedido " + pedido.numeroPedidoCliente;
 
   Object.keys(cart).forEach((key) => {
     updateCartIndicator(key);
