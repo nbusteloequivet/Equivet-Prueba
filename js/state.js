@@ -56,6 +56,7 @@ function cacheElements() {
   els.cartTitle = document.getElementById("cart-title");
   els.cartItemsEl = document.getElementById("cart-items");
   els.cartEmptyEl = document.getElementById("cart-empty");
+  els.addProductBtn = document.getElementById("add-product-btn");
   els.cartNombre = document.getElementById("cart-nombre");
   els.cartApellido = document.getElementById("cart-apellido");
   els.cartEntidad = document.getElementById("cart-entidad");
