@@ -417,6 +417,12 @@ function setupCartModal() {
   });
 
   els.sendOrderBtn.addEventListener("click", sendOrder);
+
+  // Vuelve al catálogo (cierra el modal) para seguir agregando productos
+  // sin perder lo que ya está cargado en el pedido.
+  els.addProductBtn.addEventListener("click", () => {
+    closeModalEl(els.cartModal);
+  });
 }
 
 function renderCartModal() {
