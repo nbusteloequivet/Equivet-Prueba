@@ -33,6 +33,7 @@ function clearCart() {
   editingOrderId = null;
   els.cartTitle.textContent = "Mi presupuesto";
   els.sendOrderBtn.textContent = "Enviar pedido";
+  els.cartFab.textContent = "Presupuesto rápido";
   els.cartFactura.checked = false;
   [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => input.classList.remove("field-error"));
   Object.keys(cartIndicatorEls).forEach(updateCartIndicator);
@@ -186,6 +187,7 @@ async function sendOrder() {
     }
     editingOrderId = null;
     els.cartTitle.textContent = "Mi presupuesto";
+    els.cartFab.textContent = "Presupuesto rápido";
     return;
   }
 
