@@ -783,27 +783,60 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 .cart-form { display: flex; flex-direction: column; gap: 10px; border-top: 1.5px solid var(--ink); padding-top: 16px; }
 .cart-form label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
 
-/* "¿Necesitás factura?" — checkbox en línea, no apilado como los demás
-   campos (label + input van uno al lado del otro acá, no uno arriba del
-   otro). accent-color simplemente recolorea el tilde nativo del
-   navegador al violeta del sitio, sin tener que armar un componente
-   propio desde cero. */
+/* "¿Necesitás factura?" — mismo formato de texto que el resto de los
+   labels del formulario (se hereda de ".cart-form label" tal cual, no se
+   pisa ni tamaño ni color acá) — lo único distinto es que va en fila
+   (texto a la izquierda, control a la derecha) en vez de apilado. El
+   control es un checkbox nativo pero con la apariencia por defecto
+   apagada (appearance:none): un círculo que se rellena entero de violeta
+   al tildarse, sin el tilde/check nativo del navegador. */
 .checkbox-field {
   flex-direction: row !important;
   align-items: center;
-  gap: 8px !important;
-  font-size: 13.5px !important;
-  color: var(--ink) !important;
-  font-weight: 500 !important;
+  justify-content: space-between;
   cursor: pointer;
 }
 .checkbox-field input[type="checkbox"] {
-  width: 17px;
-  height: 17px;
-  accent-color: var(--accent);
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
   cursor: pointer;
   flex-shrink: 0;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
+.checkbox-field input[type="checkbox"]:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+.checkbox-field input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Botón "+ Agregar producto" — debajo del último producto cargado (o
+   debajo del aviso de "todavía no agregaste nada"), lleva de vuelta al
+   catálogo sin perder lo que ya está en el pedido. Borde punteado a
+   propósito: es la convención visual más común para "agregar algo más",
+   y lo distingue de un botón de acción principal. */
+.cart-add-product-btn {
+  align-self: center;
+  background: none;
+  border: 1.5px dashed var(--line-strong);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: fit-content;
+}
+.cart-add-product-btn:hover { border-color: var(--accent); background: #faf3ff; }
+.cart-add-product-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .honeypot-field {
   position: absolute;
