@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAutoGrowTextarea(els.cartMensaje);
   setupContactFab();
   setupCompanyContact();
+  setupFacturaToggle();
 
   session = loadSessionFromStorage();
   updateAccountButton();
@@ -26,6 +27,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (detectarResetTokenEnURL()) {
     showAccountView("reset");
     openModalEl(els.accountModal);
+  }
+
+  // Si llegó desde el link del mail de verificación de cuenta
+  // (?verifyToken=...), verifica Y loguea de una — ver
+  // verificarCuentaYLoguear en account.js.
+  const verifyToken = detectarVerifyTokenEnURL();
+  if (verifyToken) {
+    verificarCuentaYLoguear(verifyToken);
   }
 
   loadCatalog();
