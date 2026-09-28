@@ -202,10 +202,14 @@
         <label>Entidad (si corresponde)
           <input id="cart-entidad" type="text" autocomplete="organization">
         </label>
-        <label class="checkbox-field">
-          <span>¿Necesitás factura?</span>
-          <input id="cart-factura" type="checkbox">
-        </label>
+        <div class="factura-field">
+          <span class="factura-field-label">¿Necesitás factura?</span>
+          <div class="factura-toggle">
+            <button type="button" id="factura-si-btn" class="factura-btn">Sí</button>
+            <button type="button" id="factura-no-btn" class="factura-btn">No</button>
+          </div>
+          <input type="checkbox" id="cart-factura" class="factura-hidden-input" tabindex="-1" aria-hidden="true">
+        </div>
         <label>WhatsApp*
           <input id="cart-whatsapp" type="tel" placeholder="+54 9 11 1234-5678" autocomplete="tel">
         </label>
