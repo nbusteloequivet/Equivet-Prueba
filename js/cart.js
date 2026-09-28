@@ -11,7 +11,6 @@ function addToCart(product, key, qty) {
 function removeFromCart(key) {
   delete cart[key];
   updateCartIndicator(key);
-  resetAddButton(key);
   renderCartModal();
 }
 
@@ -35,9 +34,9 @@ function clearCart() {
   els.sendOrderBtn.textContent = "Enviar pedido";
   els.cartFab.textContent = "Presupuesto rápido";
   els.cartFactura.checked = false;
+  syncFacturaButtons();
   [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => input.classList.remove("field-error"));
   Object.keys(cartIndicatorEls).forEach(updateCartIndicator);
-  Object.keys(addButtonEls).forEach(resetAddButton);
   renderCartModal();
 }
 
@@ -179,15 +178,8 @@ async function sendOrder() {
   els.sendOrderBtn.disabled = false;
 
   if (enviado) {
-    if (wasEditing) {
-      showCartStatus("Pedido editado y enviado", "success");
-      els.sendOrderBtn.textContent = "Enviar pedido";
-    } else {
-      showCartStatus("¡Listo! Tu pedido fue enviado.", "success");
-    }
-    editingOrderId = null;
-    els.cartTitle.textContent = "Mi presupuesto";
-    els.cartFab.textContent = "Presupuesto rápido";
+    showCartStatus(wasEditing ? "Pedido editado y enviado" : "¡Listo! Tu pedido fue enviado.", "success");
+    clearCart();
     return;
   }
 
