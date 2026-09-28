@@ -75,6 +75,7 @@ async function submitLogin() {
     els.loginPassword.value = "";
     updateAccountButton();
     closeModalEl(els.accountModal);
+    scrollToTop();
   } catch (err) {
     console.error("Error al iniciar sesión:", err);
     showAccountStatus(els.loginStatus, "No pudimos conectar — probá de nuevo en un momento.", "error");
@@ -151,6 +152,42 @@ function detectarResetTokenEnURL() {
     return true;
   }
   return false;
+}
+
+/* ------------------------------------------------------------------------
+   Verificación de cuenta — el link del mail ahora apunta al sitio
+   (?verifyToken=...) en vez de a la URL del Apps Script. Al detectarlo,
+   se llama al servidor, que verifica Y de una devuelve un token de
+   sesión (misma forma que el login) — así el cliente entra directo
+   logueado, sin tener que loguearse a mano después de verificar.
+   ------------------------------------------------------------------------ */
+function detectarVerifyTokenEnURL() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("verifyToken");
+  if (token) {
+    history.replaceState(null, "", window.location.pathname);
+    return token;
+  }
+  return null;
+}
+
+async function verificarCuentaYLoguear(token) {
+  try {
+    const data = await accountApiCall({ action: "verificarCuenta", token });
+    if (!data.ok) {
+      showAccountView("login");
+      openModalEl(els.accountModal);
+      showAccountStatus(els.loginStatus, "No pudimos verificar tu cuenta — el enlace puede haber vencido o ya haberse usado.", "error");
+      return;
+    }
+    session = { token: data.token, nombre: data.nombre, apellido: data.apellido, email: data.email };
+    saveSessionToStorage(session);
+    autocompletarDatosCliente();
+    updateAccountButton();
+    scrollToTop();
+  } catch (err) {
+    console.error("Error al verificar la cuenta:", err);
+  }
 }
 
 async function submitForgotPassword() {
