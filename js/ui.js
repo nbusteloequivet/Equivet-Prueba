@@ -154,7 +154,6 @@ function renderGrid() {
 
   els.grid.innerHTML = "";
   cartIndicatorEls = {};
-  addButtonEls = {};
 
   if (filtered.length === 0) {
     els.emptyState.hidden = false;
@@ -224,21 +223,15 @@ function buildCard(p) {
   return card;
 }
 
-function setAddButtonIdle(btn, key) {
-  btn.classList.remove("is-done");
-  btn.textContent = cart[key] ? "Modificar" : "Agregar";
-}
-
-function setAddButtonDone(btn, wasInCart) {
-  btn.classList.add("is-done");
-  btn.textContent = wasInCart ? "Modificado" : "Agregado";
-}
-
-function resetAddButton(key) {
-  const btn = addButtonEls[key];
-  if (!btn) return;
-  setAddButtonIdle(btn, key);
-}
+/* ------------------------------------------------------------------------
+   Selector de cantidad — ya no hay botón "Agregar": el número ES la
+   cantidad en el pedido. Cada cambio (+ / − / tipeado directo) reinicia
+   un timer de 1 segundo; si no hay más cambios en ese lapso, recién ahí
+   se sincroniza con el carrito (qty 0 saca el producto si estaba, qty>0
+   lo agrega/actualiza). El cartelito "En tu pedido: N" es ahora la única
+   confirmación visual de que se guardó — por eso se agrandó en el CSS.
+   ------------------------------------------------------------------------ */
+const CART_SYNC_DEBOUNCE_MS = 1000;
 
 function buildCartRow(p, key) {
   const wrapper = document.createElement("div");
@@ -257,7 +250,7 @@ function buildCartRow(p, key) {
   qtyInput.type = "number";
   qtyInput.className = "qty-input";
   qtyInput.min = "0";
-  qtyInput.value = "1";
+  qtyInput.value = String(cart[key] ? cart[key].qty : 0);
   qtyInput.setAttribute("aria-label", `Cantidad de ${p.name}`);
 
   const plusBtn = document.createElement("button");
@@ -268,51 +261,42 @@ function buildCartRow(p, key) {
 
   const stopBubble = (fn) => (e) => { e.stopPropagation(); fn(e); };
 
-  const addBtn = document.createElement("button");
-  addBtn.type = "button";
-  addBtn.className = "add-btn";
-  setAddButtonIdle(addBtn, key);
-
-  const onQtyChanged = () => {
-    if (addBtn.classList.contains("is-done")) setAddButtonIdle(addBtn, key);
+  let syncTimer = null;
+  const scheduleSync = () => {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      const qty = safeInt(qtyInput.value);
+      if (qty <= 0) {
+        if (cart[key]) removeFromCart(key);
+      } else {
+        addToCart(p, key, qty);
+      }
+    }, CART_SYNC_DEBOUNCE_MS);
   };
 
   minusBtn.addEventListener("click", stopBubble(() => {
     qtyInput.value = Math.max(0, safeInt(qtyInput.value) - 1);
-    onQtyChanged();
+    scheduleSync();
   }));
   plusBtn.addEventListener("click", stopBubble(() => {
     qtyInput.value = safeInt(qtyInput.value) + 1;
-    onQtyChanged();
+    scheduleSync();
   }));
   qtyInput.addEventListener("click", (e) => e.stopPropagation());
-  qtyInput.addEventListener("input", onQtyChanged);
+  qtyInput.addEventListener("input", scheduleSync);
 
   qtyControl.append(minusBtn, qtyInput, plusBtn);
+  wrapper.appendChild(qtyControl);
 
-  addBtn.addEventListener("click", stopBubble(() => {
-    const qty = safeInt(qtyInput.value);
-    if (qty <= 0) {
-      removeFromCart(key);
-    } else {
-      const wasInCart = Boolean(cart[key]);
-      addToCart(p, key, qty);
-      setAddButtonDone(addBtn, wasInCart);
-    }
-  }));
-
-  wrapper.append(qtyControl, addBtn);
-  addButtonEls[key] = addBtn;
-
+  // El cartelito vive DENTRO de la misma fila que el selector de
+  // cantidad (no debajo) — así ocupa, a la derecha, el mismo lugar
+  // horizontal que antes tenía el botón "Agregar".
   const indicatorEl = document.createElement("div");
   indicatorEl.className = "cart-indicator";
   indicatorEl.hidden = true;
+  wrapper.appendChild(indicatorEl);
 
-  const outer = document.createElement("div");
-  outer.appendChild(wrapper);
-  outer.appendChild(indicatorEl);
-
-  return { wrapper: outer, indicatorEl };
+  return { wrapper, indicatorEl };
 }
 
 function buildImageEl(p, large) {
@@ -362,7 +346,7 @@ function openProductModal(p) {
   `;
 
   const cartRow = buildCartRow(p, key);
-  cartRow.wrapper.querySelector(".card-cart-row").classList.add("modal-cart-row");
+  cartRow.wrapper.classList.add("modal-cart-row");
   info.appendChild(cartRow.wrapper);
 
   els.modalBody.appendChild(media);
@@ -419,9 +403,11 @@ function setupCartModal() {
   els.sendOrderBtn.addEventListener("click", sendOrder);
 
   // Vuelve al catálogo (cierra el modal) para seguir agregando productos
-  // sin perder lo que ya está cargado en el pedido.
+  // sin perder lo que ya está cargado en el pedido — y lo lleva arriba
+  // de todo de la página, mismo efecto barrido que el botón "Contacto".
   els.addProductBtn.addEventListener("click", () => {
     closeModalEl(els.cartModal);
+    scrollToTop();
   });
 }
 
@@ -494,6 +480,40 @@ function setupContactFab() {
   els.contactFab.addEventListener("click", () => {
     els.contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
   });
+}
+
+// Mismo "barrido" suave que usa Contacto, pero al inicio de la página —
+// lo usan el login (para que el cliente vea el catálogo, no quede
+// perdido donde estaba) y "+ Agregar producto".
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ------------------------------------------------------------------------
+   "¿Necesitás factura?" — 2 botones (Sí/No). El valor real vive en el
+   checkbox oculto cart-factura (para no tener que tocar el resto del
+   código que ya lee/escribe ese campo); estos botones solo lo prenden o
+   apagan y actualizan su propio estado visual. syncFacturaButtons() se
+   llama también cada vez que algo MÁS pone cart-factura.checked a mano
+   (clearCart, cargarPedidoEnCarrito), para que los botones no queden
+   desincronizados.
+   ------------------------------------------------------------------------ */
+function syncFacturaButtons() {
+  const checked = els.cartFactura.checked;
+  els.facturaSiBtn.classList.toggle("active", checked);
+  els.facturaNoBtn.classList.toggle("active", !checked);
+}
+
+function setupFacturaToggle() {
+  els.facturaSiBtn.addEventListener("click", () => {
+    els.cartFactura.checked = true;
+    syncFacturaButtons();
+  });
+  els.facturaNoBtn.addEventListener("click", () => {
+    els.cartFactura.checked = false;
+    syncFacturaButtons();
+  });
+  syncFacturaButtons();
 }
 
 function setupCompanyContact() {
