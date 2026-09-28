@@ -100,6 +100,7 @@ function cargarPedidoEnCarrito(pedido) {
   els.cartApellido.value = pedido.apellido || "";
   els.cartEntidad.value = pedido.entidad || "";
   els.cartFactura.checked = Boolean(pedido.necesitaFactura);
+  syncFacturaButtons();
   els.cartWhatsapp.value = pedido.whatsapp || "";
   els.cartEmail.value = pedido.email || "";
 
@@ -118,8 +119,6 @@ function cargarPedidoEnCarrito(pedido) {
 
   Object.keys(cart).forEach((key) => {
     updateCartIndicator(key);
-    const btn = addButtonEls[key];
-    if (btn) setAddButtonDone(btn, false);
   });
 
   return noEncontrados;
