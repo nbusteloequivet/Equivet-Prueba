@@ -432,31 +432,32 @@ a { color: var(--accent); }
 .avail-tag.in { color: var(--accent); border-color: var(--accent); }
 .avail-tag.out { color: var(--ink-soft); border-color: var(--line-strong); }
 
-.card-cart-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.card-cart-row { display: flex; flex-direction: column; align-items: stretch; gap: 6px; margin-top: 10px; }
 
 .qty-control {
   display: flex;
   align-items: center;
+  width: 100%;
   border: 1.5px solid var(--line-strong);
   border-radius: 4px;
   overflow: hidden;
-  flex-shrink: 0;
 }
 .qty-btn {
-  width: 28px;
-  height: 32px;
+  flex: 1;
+  height: 34px;
   border: none;
   background: var(--paper);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
   color: var(--ink);
 }
 .qty-btn:hover { background: var(--line); }
 .qty-input {
-  width: 54px;
-  height: 32px;
+  flex: 1.4;
+  min-width: 0;
+  height: 34px;
   text-align: center;
   border: none;
   border-left: 1.5px solid var(--line-strong);
@@ -472,9 +473,7 @@ a { color: var(--accent); }
   font-size: 13px;
   font-weight: 700;
   color: var(--accent);
-  flex: 1;
   text-align: right;
-  line-height: 32px;
 }
 
 .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-soft); font-family: var(--font-mono); font-size: 14px; }
@@ -781,6 +780,7 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  margin-top: 6px;
 }
 .factura-field-label {
   font-size: 12.5px;
@@ -790,7 +790,7 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 .factura-toggle {
   display: flex;
   border: 1.5px solid var(--line-strong);
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -800,8 +800,8 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   color: var(--ink-soft);
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 12.5px;
-  padding: 7px 16px;
+  font-size: 11.5px;
+  padding: 5px 12px;
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
@@ -1071,19 +1071,6 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   .fab-stack { right: 14px; bottom: 14px; gap: 8px; }
   .fab { padding: 10px 16px; font-size: 12.5px; }
   .account-corner-btn { top: 10px; right: 14px; font-size: 14.5px; }
-
-  .card-cart-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .qty-control {
-    justify-content: center;
-  }
-  .cart-indicator {
-    text-align: center;
-    line-height: normal;
-    margin-top: 4px;
-  }
 
   .modal-overlay { padding: 10px; }
   .modal-close { top: 8px; right: 8px; width: 28px; height: 28px; font-size: 13px; }
