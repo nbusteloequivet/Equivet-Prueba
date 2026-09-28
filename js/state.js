@@ -17,8 +17,6 @@ let cart = {};
 
 let cartIndicatorEls = {};
 
-let addButtonEls = {};
-
 let session = null;
 
 let editingOrderId = null;
@@ -61,6 +59,8 @@ function cacheElements() {
   els.cartApellido = document.getElementById("cart-apellido");
   els.cartEntidad = document.getElementById("cart-entidad");
   els.cartFactura = document.getElementById("cart-factura");
+  els.facturaSiBtn = document.getElementById("factura-si-btn");
+  els.facturaNoBtn = document.getElementById("factura-no-btn");
   els.cartWhatsapp = document.getElementById("cart-whatsapp");
   els.cartEmail = document.getElementById("cart-email");
   els.cartMensaje = document.getElementById("cart-mensaje");
