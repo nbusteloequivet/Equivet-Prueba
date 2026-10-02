@@ -71,6 +71,7 @@ async function submitLogin() {
     session = { token: data.token, nombre: data.nombre, apellido: data.apellido, email: data.email };
     saveSessionToStorage(session);
     autocompletarDatosCliente();
+    prefetchHistorial();
     els.loginEmail.value = "";
     els.loginPassword.value = "";
     updateAccountButton();
@@ -127,6 +128,7 @@ async function submitRegistro() {
 function logout() {
   session = null;
   clearSessionFromStorage();
+  borrarHistorialCache();
   showAccountView("login");
   updateAccountButton();
 }
@@ -183,6 +185,7 @@ async function verificarCuentaYLoguear(token) {
     session = { token: data.token, nombre: data.nombre, apellido: data.apellido, email: data.email };
     saveSessionToStorage(session);
     autocompletarDatosCliente();
+    prefetchHistorial();
     updateAccountButton();
     scrollToTop();
   } catch (err) {
@@ -246,6 +249,7 @@ async function submitResetPassword() {
     session = { token: data.token, nombre: data.nombre, apellido: data.apellido, email: data.email };
     saveSessionToStorage(session);
     autocompletarDatosCliente();
+    prefetchHistorial();
     updateAccountButton();
     closeModalEl(els.accountModal);
     scrollToTop();

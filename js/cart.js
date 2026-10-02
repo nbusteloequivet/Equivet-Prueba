@@ -34,6 +34,7 @@ function clearCart() {
   els.sendOrderBtn.textContent = "Solicitar presupuesto";
   els.cartFab.textContent = "Nuevo presupuesto";
   els.cancelEditBtn.hidden = true;
+  els.clearCartBtn.hidden = false;
   els.cartFactura.checked = false;
   syncFacturaButtons();
   [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => input.classList.remove("field-error"));
@@ -185,6 +186,11 @@ async function sendOrder() {
         : "¡Listo! Enviamos tu solicitud de presupuesto — todavía sin compra confirmada. Te contactamos a la brevedad.",
       "success"
     );
+    // El pedido recién mandado/editado ya cambió el historial del cliente
+    // — se refresca la caché local en segundo plano para que, cuando
+    // vuelva a abrir "Mi historial", ya esté actualizado sin que tenga
+    // que esperar a la planilla.
+    prefetchHistorial();
     clearCart();
     return;
   }

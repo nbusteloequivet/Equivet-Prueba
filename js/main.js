@@ -17,7 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   session = loadSessionFromStorage();
   updateAccountButton();
-  if (session) autocompletarDatosCliente();
+  if (session) {
+    autocompletarDatosCliente();
+    prefetchHistorial();
+  }
   setupAccountModal();
   setupHistorialModal();
 

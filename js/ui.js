@@ -665,15 +665,34 @@ async function openHistorialModal() {
   }
 
   showHistorialView("list");
-  els.historialEmpty.hidden = true;
-  els.historialList.innerHTML = "<p class=\"cart-empty\">Cargando…</p>";
   openModalEl(els.historialModal);
 
-  const data = await fetchMisPedidos();
+  // Si ya hay una copia guardada en este navegador (de la precarga en
+  // segundo plano al loguearse, o de la última vez que se abrió el
+  // historial), se muestra YA — sin esperar al servidor — y abajo se
+  // pide la versión actualizada; si llega algo distinto, la lista se
+  // actualiza sola. Así la demora de Apps Script deja de notarse en el
+  // uso normal del día a día.
+  const cacheado = leerHistorialCache();
+  if (cacheado) {
+    els.historialEmpty.hidden = true;
+    els.historialEmpty.textContent = "Todavía no hiciste ninguna solicitud de presupuesto.";
+    renderHistorialList(cacheado);
+  } else {
+    els.historialEmpty.hidden = true;
+    els.historialList.innerHTML = "<p class=\"cart-empty\">Cargando…</p>";
+  }
+
+  const data = await fetchMisPedidosYCachear();
   if (!data.ok) {
-    els.historialList.innerHTML = "";
-    els.historialEmpty.hidden = false;
-    els.historialEmpty.textContent = "No pudimos cargar tu historial — cerrá este cartel y volvé a intentar.";
+    // Si había una copia en caché, se deja tal cual (mejor desactualizada
+    // por un error de red puntual que vacía) — solo se muestra el error
+    // cuando no hay nada previo para mostrar.
+    if (!cacheado) {
+      els.historialList.innerHTML = "";
+      els.historialEmpty.hidden = false;
+      els.historialEmpty.textContent = "No pudimos cargar tu historial — cerrá este cartel y volvé a intentar.";
+    }
     return;
   }
   els.historialEmpty.textContent = "Todavía no hiciste ninguna solicitud de presupuesto.";
@@ -703,7 +722,7 @@ function setupHistorialModal() {
         "error"
       );
     } else {
-      showCartStatus("Cargamos tu solicitud anterior — modificá lo que necesites y reenviala.", "success");
+      hideCartStatus();
     }
   });
 }

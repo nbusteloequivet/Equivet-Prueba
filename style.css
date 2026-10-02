@@ -950,7 +950,6 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
   border-color: var(--ink);
 }
 
-.cancel-edit-btn { display: block; width: 100%; margin: 0 0 10px; }
 .cart-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .btn-primary, .btn-secondary {
   flex: 1 1 150px;
@@ -966,6 +965,14 @@ a.contact-card:hover { transform: translateY(-3px); box-shadow: 4px 6px 0 var(--
 .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
 .btn-secondary { background: var(--paper); color: var(--ink); }
 .btn-secondary:hover { background: var(--line); }
+
+/* "No editar presupuesto" — mismo tamaño que los demás botones de esta
+   fila (es un botón más dentro de .cart-actions, por eso ya no necesita
+   ancho/alto propio), pero en rojo porque es una acción que descarta
+   cambios — el mismo rojo que ya se usa para "contraseña incorrecta"
+   (.cart-status.error) y para "Cerrar sesión" (.btn-logout). */
+.cancel-edit-btn { border-color: #e63946; color: #b3001b; }
+.cancel-edit-btn:hover { background: #fff3f3; }
 
 .btn-logout {
   width: 100%;

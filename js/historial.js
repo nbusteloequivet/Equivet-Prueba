@@ -1,5 +1,66 @@
 let currentHistorialPedido = null;
 
+// --------------------------------------------------------------------------
+// Caché local del historial (en este navegador) — ver prefetchHistorial()
+// y openHistorialModal(). El problema que esto ataca: Apps Script siempre
+// tarda un par de segundos en responder, y eso se sentía como que "el
+// historial tarda mucho" cada vez que se abría. Ahora, apenas el cliente
+// se loguea (o si ya tenía la sesión guardada al abrir la página), se
+// pide el historial en SEGUNDO PLANO sin que se note — y cuando
+// efectivamente toca "Mi historial", lo que se muestra es esa copia ya
+// guardada en el navegador, al instante, mientras por detrás se vuelve a
+// pedir al servidor por si cambió algo. El resultado: la demora de Apps
+// Script deja de notarse en el uso normal (abrir, mirar, cerrar) — solo
+// se nota en la primera vez de cada sesión de navegador.
+// --------------------------------------------------------------------------
+const HISTORIAL_CACHE_KEY = "equivetHistorialCache";
+const HISTORIAL_CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000; // 6 horas
+
+function leerHistorialCache() {
+  if (!session) return null;
+  try {
+    const raw = localStorage.getItem(HISTORIAL_CACHE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (data.token !== session.token) return null;
+    if (Date.now() - data.timestamp > HISTORIAL_CACHE_MAX_AGE_MS) return null;
+    return data.pedidos;
+  } catch (err) {
+    return null;
+  }
+}
+
+function guardarHistorialCache(pedidos) {
+  if (!session) return;
+  try {
+    localStorage.setItem(HISTORIAL_CACHE_KEY, JSON.stringify({ token: session.token, pedidos: pedidos, timestamp: Date.now() }));
+  } catch (err) {
+    // localStorage lleno o bloqueado (modo privado, etc.) — no es crítico,
+    // simplemente no se cachea esta vez.
+  }
+}
+
+function borrarHistorialCache() {
+  try {
+    localStorage.removeItem(HISTORIAL_CACHE_KEY);
+  } catch (err) {}
+}
+
+async function fetchMisPedidosYCachear() {
+  const data = await fetchMisPedidos();
+  if (data.ok) guardarHistorialCache(data.pedidos);
+  return data;
+}
+
+// Se llama apenas hay sesión (justo después de loguearse/verificar
+// cuenta/restablecer contraseña, y al abrir la página si ya había una
+// sesión guardada) — no bloquea nada ni muestra ningún estado de carga,
+// solo deja el historial listo en caché para cuando lo pidan.
+function prefetchHistorial() {
+  if (!session) return;
+  fetchMisPedidosYCachear().catch(() => {});
+}
+
 async function fetchMisPedidos() {
   if (!session) return { ok: false, pedidos: [] };
   try {
@@ -117,6 +178,7 @@ function cargarPedidoEnCarrito(pedido) {
   els.sendOrderBtn.textContent = "Editar y enviar solicitud";
   els.cartFab.textContent = "Solicitud " + pedido.numeroPedidoCliente;
   els.cancelEditBtn.hidden = false;
+  els.clearCartBtn.hidden = true;
 
   Object.keys(cart).forEach((key) => {
     updateCartIndicator(key);
