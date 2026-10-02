@@ -401,6 +401,15 @@ function setupCartModal() {
     showCartStatus("Vaciaste tu presupuesto.", "success");
   });
 
+  // Solo aparece mientras se está editando una solicitud ya enviada:
+  // descarta los cambios de la edición (sin tocar la solicitud original)
+  // y vuelve al catálogo, igual que "Volver al catálogo".
+  els.cancelEditBtn.addEventListener("click", () => {
+    clearCart();
+    closeModalEl(els.cartModal);
+    scrollToTop();
+  });
+
   els.sendOrderBtn.addEventListener("click", sendOrder);
 
   // Vuelve al catálogo (cierra el modal) para seguir agregando productos
@@ -517,25 +526,6 @@ function setupFacturaToggle() {
   syncFacturaButtons();
 }
 
-/* ------------------------------------------------------------------------
-   Mostrar/ocultar contraseña — un botón de texto adentro del input que
-   alterna type="password" <-> type="text". No hace falta saber qué input
-   es cada uno: el botón siempre es el hermano inmediatamente anterior
-   dentro de .password-field (ver index.html).
-   ------------------------------------------------------------------------ */
-function setupPasswordToggles() {
-  document.querySelectorAll(".password-toggle-btn").forEach((btn) => {
-    const input = btn.previousElementSibling;
-    if (!input) return;
-    btn.addEventListener("click", () => {
-      const estaMostrando = input.type === "text";
-      input.type = estaMostrando ? "password" : "text";
-      btn.textContent = estaMostrando ? "Mostrar" : "Ocultar";
-      btn.setAttribute("aria-label", estaMostrando ? "Mostrar contraseña" : "Ocultar contraseña");
-    });
-  });
-}
-
 function setupCompanyContact() {
   els.contactInstagram.href = CONFIG.COMPANY_INSTAGRAM_URL;
   els.contactInstagramValue.textContent = CONFIG.COMPANY_INSTAGRAM_HANDLE;
@@ -562,24 +552,18 @@ function setupCompanyContact() {
   els.contactMapIframe.src = buildMapEmbedUrl_(CONFIG.COMPANY_MAP_QUERY);
 }
 
-// El mapa EMBEBIDO (adentro de la página) usa OpenStreetMap en vez de
-// Google Maps. El método gratuito de Google ("/maps?q=...&output=embed",
-// sin API key) a veces muestra el iframe en blanco: Google redirige a una
-// pantalla de confirmación/consentimiento que muchos navegadores bloquean
-// dentro de un iframe (error típico: "Refused to display... X-Frame-
-// Options"). OpenStreetMap tiene un embed oficial, gratuito y sin ese
-// problema — por eso se usa acá SOLO para la vista previa; el botón de
-// arriba sigue abriendo Google Maps de verdad en una pestaña nueva.
+// El mapa EMBEBIDO (adentro de la página) usa el embed clásico de Google
+// Maps ("/maps?q=...&output=embed", sin API key) para que se vea igual
+// al Google Maps de siempre (calles, colores y estilo tradicionales), en
+// vez del estilo Mapnik de OpenStreetMap que se usó antes. El botón/
+// overlay de arriba sigue abriendo Google Maps de verdad en pestaña nueva.
 function buildMapEmbedUrl_(mapQuery) {
   const partes = (mapQuery || "").split(",").map((v) => parseFloat(v.trim()));
   const lat = partes[0];
   const lng = partes[1];
   if (isNaN(lat) || isNaN(lng)) return "";
 
-  const delta = 0.006; // recuadro chico, zoom cercano al punto exacto
-  const bbox = [lng - delta, lat - delta, lng + delta, lat + delta].join(",");
-  const marker = `${lat},${lng}`;
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${encodeURIComponent(marker)}`;
+  return `https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed`;
 }
 
 function showStatus(msg, type) {
