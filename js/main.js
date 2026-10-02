@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupContactFab();
   setupCompanyContact();
   setupFacturaToggle();
+  setupWhatsappFormatter(els.cartWhatsapp);
 
   session = loadSessionFromStorage();
   updateAccountButton();

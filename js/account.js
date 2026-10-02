@@ -228,7 +228,13 @@ async function submitResetPassword() {
     return;
   }
 
+  // Mismo aviso inmediato que en el login (ver submitLogin) — acá
+  // además hay que escribir en la planilla (cambiar la contraseña) antes
+  // de poder loguear, así que la espera es un poco más larga todavía;
+  // sin este cartel el botón se siente trabado.
   els.resetSubmitBtn.disabled = true;
+  const textoOriginalReset = els.resetSubmitBtn.textContent;
+  els.resetSubmitBtn.textContent = "Guardando…";
   try {
     const data = await accountApiCall({ action: "restablecerPassword", resetToken, newPassword });
 
@@ -258,6 +264,7 @@ async function submitResetPassword() {
     showAccountStatus(els.resetStatus, "No pudimos conectar — probá de nuevo en un momento.", "error");
   } finally {
     els.resetSubmitBtn.disabled = false;
+    els.resetSubmitBtn.textContent = textoOriginalReset;
   }
 }
 

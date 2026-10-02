@@ -35,7 +35,8 @@ function clearCart() {
   els.cartFab.textContent = "Nuevo presupuesto";
   els.cancelEditBtn.hidden = true;
   els.clearCartBtn.hidden = false;
-  els.cartFactura.checked = false;
+  els.cartFactura.value = "";
+  marcarFacturaConError(false);
   syncFacturaButtons();
   [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => input.classList.remove("field-error"));
   Object.keys(cartIndicatorEls).forEach(updateCartIndicator);
@@ -64,8 +65,11 @@ function prepareOrder() {
   const nombre = els.cartNombre.value.trim();
   const apellido = els.cartApellido.value.trim();
   const entidad = els.cartEntidad.value.trim();
-  const necesitaFactura = els.cartFactura.checked;
-  const whatsapp = els.cartWhatsapp.value.trim();
+  const facturaValue = els.cartFactura.value; // "" (sin elegir todavía), "si" o "no"
+  // Lo que se ve en el campo es el número con espacios (ver
+  // setupWhatsappFormatter en ui.js) — lo que se guarda y se manda es
+  // siempre el número de una sola pieza, sin espacios ni guiones.
+  const whatsapp = els.cartWhatsapp.value.trim().replace(/[^\d+]/g, "");
   const email = els.cartEmail.value.trim();
   const mensaje = els.cartMensaje.value.trim();
 
@@ -81,7 +85,10 @@ function prepareOrder() {
   if (!email) camposFaltantes.push(els.cartEmail);
   marcarCamposConError(camposFaltantes);
 
-  if (camposFaltantes.length > 0) {
+  const faltaFactura = facturaValue !== "si" && facturaValue !== "no";
+  marcarFacturaConError(faltaFactura);
+
+  if (camposFaltantes.length > 0 || faltaFactura) {
     showCartStatus("Completá tus datos antes de enviar.", "error");
     return null;
   }
@@ -94,6 +101,7 @@ function prepareOrder() {
     return null;
   }
 
+  const necesitaFactura = facturaValue === "si";
   const orderId = String(Date.now());
 
   const message = buildOrderMessage({ nombre, apellido, entidad, necesitaFactura, whatsapp, email, mensaje, items });
@@ -166,42 +174,49 @@ function openEmailContact(to, subject, body) {
   }
 }
 
-async function sendOrder() {
+function sendOrder() {
   const order = prepareOrder();
   if (order === null) return;
 
   const wasEditing = Boolean(editingOrderId);
 
-  els.sendOrderBtn.disabled = true;
-  showCartStatus(wasEditing ? "Actualizando tu solicitud…" : "Enviando tu solicitud…", "success");
+  // Optimista: se muestra el resultado de éxito y se vacía el carrito DE
+  // UNA, sin esperar la respuesta del servidor — es justamente lo que
+  // pedía el cliente (que el cartel cambie al instante y la demora de
+  // Apps Script no se note). Es seguro hacerlo así porque el envío usa
+  // mode:"no-cors" (ver submitOrderToServer): el navegador YA no podía
+  // leer si Apps Script lo guardó bien o no, así que esperar antes no
+  // daba más garantía real — solo agregaba demora visible sin agregar
+  // certeza. El envío de verdad sigue en curso por detrás; si llega a
+  // fallar la conexión (el único caso que no-cors sí puede detectar:
+  // estar sin internet en ese momento), recién ahí se avisa.
+  showCartStatus(
+    wasEditing
+      ? "Solicitud editada y enviada — todavía sin compra confirmada."
+      : "¡Listo! Enviamos tu solicitud de presupuesto — todavía sin compra confirmada. Te contactamos a la brevedad.",
+    "success"
+  );
+  clearCart();
 
-  const enviado = await submitOrderToServer(order);
+  submitOrderToServer(order).then((enviado) => {
+    if (enviado) {
+      // El historial del cliente ya cambió — se refresca la caché local
+      // en segundo plano para que "Mi historial" ya esté al día la
+      // próxima vez que lo abra.
+      prefetchHistorial();
+      return;
+    }
 
-  els.sendOrderBtn.disabled = false;
-
-  if (enviado) {
-    showCartStatus(
-      wasEditing
-        ? "Solicitud editada y enviada — todavía sin compra confirmada."
-        : "¡Listo! Enviamos tu solicitud de presupuesto — todavía sin compra confirmada. Te contactamos a la brevedad.",
-      "success"
-    );
-    // El pedido recién mandado/editado ya cambió el historial del cliente
-    // — se refresca la caché local en segundo plano para que, cuando
-    // vuelva a abrir "Mi historial", ya esté actualizado sin que tenga
-    // que esperar a la planilla.
-    prefetchHistorial();
-    clearCart();
-    return;
-  }
-
-  if (wasEditing) {
-    showCartStatus("No pudimos guardar la actualización — probá de nuevo en un momento.", "error");
-    return;
-  }
-
-  openGmailComposeUrl(CONFIG.ORDER_EMAIL, CONFIG.ORDER_EMAIL_SUBJECT, order.message);
-  showCartStatus("No pudimos enviarlo automáticamente — se abrió Gmail con tu solicitud cargada. Revisalo y tocá enviar desde ahí.", "error");
+    // Solo se llega hasta acá si de verdad no hubo conexión con el
+    // servidor en ese momento — el caso normal, con mucha diferencia, es
+    // que esto ni se note.
+    if (wasEditing) {
+      showCartStatus("No pudimos guardar la actualización — probá de nuevo en un momento.", "error");
+      return;
+    }
+    openGmailComposeUrl(CONFIG.ORDER_EMAIL, CONFIG.ORDER_EMAIL_SUBJECT, order.message);
+    showCartStatus("No pudimos enviarlo automáticamente — se abrió Gmail con tu solicitud cargada. Revisalo y tocá enviar desde ahí.", "error");
+  });
 }
 
 function buildOrderMessage({ nombre, apellido, entidad, necesitaFactura, whatsapp, email, mensaje, items }) {
@@ -212,7 +227,7 @@ function buildOrderMessage({ nombre, apellido, entidad, necesitaFactura, whatsap
   if (entidad) lines.push(`Entidad: ${entidad}`);
   lines.push(`WhatsApp: ${whatsapp}`);
   lines.push(`Email: ${email}`);
-  lines.push(`Necesita factura: ${necesitaFactura ? "Sí" : "No"}`);
+  lines.push(`Necesita factura A: ${necesitaFactura ? "Sí" : "No"}`);
   lines.push("");
   if (items.length > 0) {
     lines.push("Productos:");

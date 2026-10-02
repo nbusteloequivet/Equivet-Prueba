@@ -121,8 +121,8 @@ function renderHistorialDetail(pedido) {
     ${historialDetailRowHtml("Solicitud", "#" + pedido.numeroPedidoCliente + " — " + formatFechaHora(pedido.fecha, pedido.hora))}
     ${historialDetailRowHtml("Cliente", nombreCompleto)}
     ${historialDetailRowHtml("Entidad", pedido.entidad)}
-    ${historialDetailRowHtml("Necesita factura", pedido.necesitaFactura ? "Sí" : "No")}
-    ${historialDetailRowHtml("WhatsApp", pedido.whatsapp)}
+    ${historialDetailRowHtml("Necesita factura A", pedido.necesitaFactura ? "Sí" : "No")}
+    ${historialDetailRowHtml("WhatsApp", formatearWhatsappParaMostrar(pedido.whatsapp))}
     ${historialDetailRowHtml("Email", pedido.email)}
     <div class="historial-items-list">${itemsHtml}</div>
     ${mensajeHtml}
@@ -160,9 +160,10 @@ function cargarPedidoEnCarrito(pedido) {
   els.cartNombre.value = pedido.nombre || "";
   els.cartApellido.value = pedido.apellido || "";
   els.cartEntidad.value = pedido.entidad || "";
-  els.cartFactura.checked = Boolean(pedido.necesitaFactura);
+  els.cartFactura.value = pedido.necesitaFactura ? "si" : "no";
+  marcarFacturaConError(false);
   syncFacturaButtons();
-  els.cartWhatsapp.value = pedido.whatsapp || "";
+  els.cartWhatsapp.value = formatearWhatsappParaMostrar(pedido.whatsapp || "");
   els.cartEmail.value = pedido.email || "";
 
   let mensaje = pedido.mensaje || "";

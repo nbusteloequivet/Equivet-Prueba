@@ -62,6 +62,7 @@ function cacheElements() {
   els.cartFactura = document.getElementById("cart-factura");
   els.facturaSiBtn = document.getElementById("factura-si-btn");
   els.facturaNoBtn = document.getElementById("factura-no-btn");
+  els.facturaToggle = document.querySelector(".factura-toggle");
   els.cartWhatsapp = document.getElementById("cart-whatsapp");
   els.cartEmail = document.getElementById("cart-email");
   els.cartMensaje = document.getElementById("cart-mensaje");

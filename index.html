@@ -210,12 +210,12 @@
           <input id="cart-entidad" type="text" autocomplete="organization">
         </label>
         <div class="factura-field">
-          <span class="factura-field-label">¿Necesitás factura?</span>
+          <span class="factura-field-label">¿Necesitás factura A?</span>
           <div class="factura-toggle">
             <button type="button" id="factura-si-btn" class="factura-btn">Sí</button>
             <button type="button" id="factura-no-btn" class="factura-btn">No</button>
           </div>
-          <input type="checkbox" id="cart-factura" class="factura-hidden-input" tabindex="-1" aria-hidden="true">
+          <input type="hidden" id="cart-factura" class="factura-hidden-input" value="">
         </div>
         <label>WhatsApp*
           <input id="cart-whatsapp" type="tel" placeholder="+54 9 11 1234-5678" autocomplete="tel">
@@ -236,7 +236,7 @@
       <div id="cart-status" class="cart-status" hidden></div>
 
       <div class="cart-send">
-        <p class="cart-send-note">Esto envía una <strong>solicitud de presupuesto</strong>, no una compra ni un pedido confirmado. No se realiza ningún cobro: te contactamos con el presupuesto y la disponibilidad antes de coordinar nada.</p>
+        <p class="cart-send-note">Esto envía una <strong>solicitud de presupuesto</strong>, no una compra ni un pedido confirmado. No se realiza ningún cobro: te contactamos con el presupuesto y la disponibilidad de los productos a la brevedad.</p>
         <button id="send-order-btn" class="btn-provider" type="button">Solicitar presupuesto</button>
       </div>
 

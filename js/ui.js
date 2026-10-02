@@ -500,30 +500,99 @@ function scrollToTop() {
 }
 
 /* ------------------------------------------------------------------------
-   "¿Necesitás factura?" — 2 botones (Sí/No). El valor real vive en el
-   checkbox oculto cart-factura (para no tener que tocar el resto del
-   código que ya lee/escribe ese campo); estos botones solo lo prenden o
-   apagan y actualizan su propio estado visual. syncFacturaButtons() se
-   llama también cada vez que algo MÁS pone cart-factura.checked a mano
-   (clearCart, cargarPedidoEnCarrito), para que los botones no queden
-   desincronizados.
+   "¿Necesitás factura A?" — 2 botones (Sí/No), SIN ninguno marcado al
+   empezar: el cliente tiene que elegir uno sí o sí para poder enviar (ver
+   la validación en prepareOrder, cart.js). El valor real vive en el
+   input oculto cart-factura como texto: "" (todavía no eligió), "si" o
+   "no" — antes era un checkbox booleano, que no podía representar "sin
+   elegir". syncFacturaButtons() se llama también cada vez que algo MÁS
+   pone cart-factura.value a mano (clearCart, cargarPedidoEnCarrito),
+   para que los botones no queden desincronizados.
    ------------------------------------------------------------------------ */
 function syncFacturaButtons() {
-  const checked = els.cartFactura.checked;
-  els.facturaSiBtn.classList.toggle("active", checked);
-  els.facturaNoBtn.classList.toggle("active", !checked);
+  const valor = els.cartFactura.value;
+  els.facturaSiBtn.classList.toggle("active", valor === "si");
+  els.facturaNoBtn.classList.toggle("active", valor === "no");
+}
+
+function marcarFacturaConError(conError) {
+  els.facturaToggle.classList.toggle("field-error", conError);
 }
 
 function setupFacturaToggle() {
   els.facturaSiBtn.addEventListener("click", () => {
-    els.cartFactura.checked = true;
+    els.cartFactura.value = "si";
+    marcarFacturaConError(false);
     syncFacturaButtons();
   });
   els.facturaNoBtn.addEventListener("click", () => {
-    els.cartFactura.checked = false;
+    els.cartFactura.value = "no";
+    marcarFacturaConError(false);
     syncFacturaButtons();
   });
   syncFacturaButtons();
+}
+
+/* ------------------------------------------------------------------------
+   Formateo del campo de WhatsApp a medida que se escribe — por ejemplo,
+   "+5491140781821" se va mostrando como "+54 911 4078 1821". Es solo
+   visual: lo que se guarda y se manda al servidor es el número de una
+   sola pieza, sin espacios (ver prepareOrder en cart.js). Esto evita que
+   el cliente escriba guiones o espacios a mano de formas inconsistentes
+   y el número termine mal guardado.
+   ------------------------------------------------------------------------ */
+function soloDigitos(valor) {
+  return (valor || "").toString().replace(/\D/g, "");
+}
+
+function formatWhatsappVisual(digitos) {
+  const tamanos = [2, 3, 4, 4, 4, 4];
+  const grupos = [];
+  let i = 0;
+  for (const tam of tamanos) {
+    if (i >= digitos.length) break;
+    grupos.push(digitos.slice(i, i + tam));
+    i += tam;
+  }
+  if (i < digitos.length) grupos.push(digitos.slice(i));
+  return grupos.join(" ");
+}
+
+function formatearWhatsappParaMostrar(valor) {
+  const crudo = (valor || "").toString();
+  const tienePlus = crudo.trim().startsWith("+");
+  return (tienePlus ? "+" : "") + formatWhatsappVisual(soloDigitos(crudo));
+}
+
+function setupWhatsappFormatter(input) {
+  input.addEventListener("input", () => {
+    const valorPrevio = input.value;
+    const cursorPrevio = input.selectionStart == null ? valorPrevio.length : input.selectionStart;
+    const digitosAntesDelCursor = soloDigitos(valorPrevio.slice(0, cursorPrevio)).length;
+
+    const formateado = formatearWhatsappParaMostrar(valorPrevio);
+    input.value = formateado;
+
+    // Reubica el cursor después del mismo dígito donde estaba, contando
+    // dígitos — si no, el cursor saltaría siempre al final del campo en
+    // cada tecla, haciendo imposible corregir algo en el medio.
+    let nuevaPosicion = formateado.length;
+    if (digitosAntesDelCursor === 0) {
+      nuevaPosicion = 0;
+    } else {
+      let vistos = 0;
+      for (let i = 0; i < formateado.length; i++) {
+        if (/\d/.test(formateado[i])) {
+          vistos++;
+          if (vistos === digitosAntesDelCursor) {
+            nuevaPosicion = i + 1;
+            break;
+          }
+        }
+      }
+    }
+    input.setSelectionRange(nuevaPosicion, nuevaPosicion);
+  });
 }
 
 function setupCompanyContact() {
