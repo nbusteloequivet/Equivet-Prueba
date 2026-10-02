@@ -20,7 +20,7 @@ function updateCartIndicator(key) {
   const entry = cart[key];
   if (entry && entry.qty > 0) {
     el.hidden = false;
-    el.textContent = `En tu pedido: ${entry.qty}`;
+    el.textContent = `En tu presupuesto: ${entry.qty}`;
   } else {
     el.hidden = true;
     el.textContent = "";
@@ -31,7 +31,7 @@ function clearCart() {
   cart = {};
   editingOrderId = null;
   els.cartTitle.textContent = "Mi presupuesto";
-  els.sendOrderBtn.textContent = "Enviar pedido";
+  els.sendOrderBtn.textContent = "Solicitar presupuesto";
   els.cartFab.textContent = "Presupuesto rápido";
   els.cartFactura.checked = false;
   syncFacturaButtons();
@@ -68,7 +68,7 @@ function prepareOrder() {
   const mensaje = els.cartMensaje.value.trim();
 
   if (items.length === 0 && !mensaje) {
-    showCartStatus("Agregá productos al pedido o contanos en \"Mensaje adicional\" qué necesitás.", "error");
+    showCartStatus("Agregá productos a tu presupuesto o contanos en \"Mensaje adicional\" qué necesitás.", "error");
     return null;
   }
 
@@ -171,14 +171,19 @@ async function sendOrder() {
   const wasEditing = Boolean(editingOrderId);
 
   els.sendOrderBtn.disabled = true;
-  showCartStatus(wasEditing ? "Actualizando tu pedido…" : "Enviando tu pedido…", "success");
+  showCartStatus(wasEditing ? "Actualizando tu solicitud…" : "Enviando tu solicitud…", "success");
 
   const enviado = await submitOrderToServer(order);
 
   els.sendOrderBtn.disabled = false;
 
   if (enviado) {
-    showCartStatus(wasEditing ? "Pedido editado y enviado" : "¡Listo! Tu pedido fue enviado.", "success");
+    showCartStatus(
+      wasEditing
+        ? "Solicitud editada y enviada — todavía sin compra confirmada."
+        : "¡Listo! Enviamos tu solicitud de presupuesto — todavía sin compra confirmada. Te contactamos a la brevedad.",
+      "success"
+    );
     clearCart();
     return;
   }
@@ -189,12 +194,12 @@ async function sendOrder() {
   }
 
   openGmailComposeUrl(CONFIG.ORDER_EMAIL, CONFIG.ORDER_EMAIL_SUBJECT, order.message);
-  showCartStatus("No pudimos enviarlo automáticamente — se abrió Gmail con tu pedido cargado. Revisalo y tocá enviar desde ahí.", "error");
+  showCartStatus("No pudimos enviarlo automáticamente — se abrió Gmail con tu solicitud cargada. Revisalo y tocá enviar desde ahí.", "error");
 }
 
 function buildOrderMessage({ nombre, apellido, entidad, necesitaFactura, whatsapp, email, mensaje, items }) {
   const lines = [];
-  lines.push(`Pedido - ${CONFIG.LAB_NAME}`);
+  lines.push(`Solicitud de presupuesto - ${CONFIG.LAB_NAME}`);
   lines.push("");
   lines.push(`Cliente: ${nombre}${apellido ? " " + apellido : ""}`);
   if (entidad) lines.push(`Entidad: ${entidad}`);
