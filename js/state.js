@@ -45,6 +45,7 @@ function cacheElements() {
 
   els.howToUseToggle = document.getElementById("how-to-use-toggle");
   els.howToUsePanelWrap = document.getElementById("how-to-use-panel-wrap");
+  els.notice24hWhatsapp = document.getElementById("notice-24h-whatsapp");
 
   els.productModal = document.getElementById("product-modal");
   els.modalBody = document.getElementById("modal-body");
