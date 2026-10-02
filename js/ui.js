@@ -225,11 +225,12 @@ function buildCard(p) {
 
 /* ------------------------------------------------------------------------
    Selector de cantidad — ya no hay botón "Agregar": el número ES la
-   cantidad en el pedido. Cada cambio (+ / − / tipeado directo) reinicia
-   un timer de 1 segundo; si no hay más cambios en ese lapso, recién ahí
-   se sincroniza con el carrito (qty 0 saca el producto si estaba, qty>0
-   lo agrega/actualiza). El cartelito "En tu pedido: N" es ahora la única
-   confirmación visual de que se guardó — por eso se agrandó en el CSS.
+   cantidad en el presupuesto. Cada cambio (+ / − / tipeado directo)
+   reinicia un timer de 1 segundo; si no hay más cambios en ese lapso,
+   recién ahí se sincroniza con el carrito (qty 0 saca el producto si
+   estaba, qty>0 lo agrega/actualiza). El cartelito "En tu presupuesto: N"
+   es ahora la única confirmación visual de que se guardó — por eso se
+   agrandó en el CSS.
    ------------------------------------------------------------------------ */
 const CART_SYNC_DEBOUNCE_MS = 1000;
 
@@ -397,7 +398,7 @@ function setupCartModal() {
 
   els.clearCartBtn.addEventListener("click", () => {
     clearCart();
-    showCartStatus("Vaciaste tu pedido.", "success");
+    showCartStatus("Vaciaste tu presupuesto.", "success");
   });
 
   els.sendOrderBtn.addEventListener("click", sendOrder);
@@ -516,12 +517,33 @@ function setupFacturaToggle() {
   syncFacturaButtons();
 }
 
+/* ------------------------------------------------------------------------
+   Mostrar/ocultar contraseña — un botón de texto adentro del input que
+   alterna type="password" <-> type="text". No hace falta saber qué input
+   es cada uno: el botón siempre es el hermano inmediatamente anterior
+   dentro de .password-field (ver index.html).
+   ------------------------------------------------------------------------ */
+function setupPasswordToggles() {
+  document.querySelectorAll(".password-toggle-btn").forEach((btn) => {
+    const input = btn.previousElementSibling;
+    if (!input) return;
+    btn.addEventListener("click", () => {
+      const estaMostrando = input.type === "text";
+      input.type = estaMostrando ? "password" : "text";
+      btn.textContent = estaMostrando ? "Mostrar" : "Ocultar";
+      btn.setAttribute("aria-label", estaMostrando ? "Mostrar contraseña" : "Ocultar contraseña");
+    });
+  });
+}
+
 function setupCompanyContact() {
   els.contactInstagram.href = CONFIG.COMPANY_INSTAGRAM_URL;
   els.contactInstagramValue.textContent = CONFIG.COMPANY_INSTAGRAM_HANDLE;
 
   els.contactWhatsapp.href = `https://wa.me/${CONFIG.COMPANY_WHATSAPP_NUMBER}`;
   els.contactWhatsappValue.textContent = CONFIG.COMPANY_WHATSAPP_DISPLAY;
+
+  if (els.notice24hWhatsapp) els.notice24hWhatsapp.href = `https://wa.me/${CONFIG.COMPANY_WHATSAPP_NUMBER}`;
 
   els.contactGmail.href = "#";
   els.contactGmail.addEventListener("click", (e) => {
@@ -534,8 +556,30 @@ function setupCompanyContact() {
 
   els.contactAddressValue.textContent = CONFIG.COMPANY_ADDRESS;
   const encodedQuery = encodeURIComponent(CONFIG.COMPANY_MAP_QUERY);
+  // El botón/overlay "Abrir en Google Maps" sigue yendo a Google (es lo
+  // que la gente conoce y usa para sacar indicaciones).
   els.contactMapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
-  els.contactMapIframe.src = `https://www.google.com/maps?q=${encodedQuery}&output=embed`;
+  els.contactMapIframe.src = buildMapEmbedUrl_(CONFIG.COMPANY_MAP_QUERY);
+}
+
+// El mapa EMBEBIDO (adentro de la página) usa OpenStreetMap en vez de
+// Google Maps. El método gratuito de Google ("/maps?q=...&output=embed",
+// sin API key) a veces muestra el iframe en blanco: Google redirige a una
+// pantalla de confirmación/consentimiento que muchos navegadores bloquean
+// dentro de un iframe (error típico: "Refused to display... X-Frame-
+// Options"). OpenStreetMap tiene un embed oficial, gratuito y sin ese
+// problema — por eso se usa acá SOLO para la vista previa; el botón de
+// arriba sigue abriendo Google Maps de verdad en una pestaña nueva.
+function buildMapEmbedUrl_(mapQuery) {
+  const partes = (mapQuery || "").split(",").map((v) => parseFloat(v.trim()));
+  const lat = partes[0];
+  const lng = partes[1];
+  if (isNaN(lat) || isNaN(lng)) return "";
+
+  const delta = 0.006; // recuadro chico, zoom cercano al punto exacto
+  const bbox = [lng - delta, lat - delta, lng + delta, lat + delta].join(",");
+  const marker = `${lat},${lng}`;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${encodeURIComponent(marker)}`;
 }
 
 function showStatus(msg, type) {
@@ -648,7 +692,7 @@ async function openHistorialModal() {
     els.historialEmpty.textContent = "No pudimos cargar tu historial — cerrá este cartel y volvé a intentar.";
     return;
   }
-  els.historialEmpty.textContent = "Todavía no hiciste ningún pedido.";
+  els.historialEmpty.textContent = "Todavía no hiciste ninguna solicitud de presupuesto.";
   renderHistorialList(data.pedidos);
 }
 
@@ -671,11 +715,11 @@ function setupHistorialModal() {
 
     if (noEncontrados.length > 0) {
       showCartStatus(
-        `Cargamos tu pedido — ojo, ${noEncontrados.length} producto(s) de esa vez ya no están en el catálogo actual (quedaron anotados en el mensaje).`,
+        `Cargamos tu solicitud — ojo, ${noEncontrados.length} producto(s) de esa vez ya no están en el catálogo actual (quedaron anotados en el mensaje).`,
         "error"
       );
     } else {
-      showCartStatus("Cargamos tu pedido anterior — modificá lo que necesites y reenvialo.", "success");
+      showCartStatus("Cargamos tu solicitud anterior — modificá lo que necesites y reenviala.", "success");
     }
   });
 }
