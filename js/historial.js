@@ -20,7 +20,7 @@ function buildHistorialCard(pedido) {
   card.type = "button";
   card.className = "historial-card";
   card.innerHTML = `
-    <span class="historial-card-date">Pedido #${escapeHtml(String(pedido.numeroPedidoCliente))} — ${escapeHtml(formatFechaHora(pedido.fecha, pedido.hora))}</span>
+    <span class="historial-card-date">Solicitud #${escapeHtml(String(pedido.numeroPedidoCliente))} — ${escapeHtml(formatFechaHora(pedido.fecha, pedido.hora))}</span>
     <span class="historial-card-arrow" aria-hidden="true">→</span>
   `;
   card.addEventListener("click", () => openHistorialDetail(pedido));
@@ -47,7 +47,7 @@ function renderHistorialDetail(pedido) {
           <span>Cantidad: ${escapeHtml(String(item.cantidad))}</span>
         </div>
       `).join("")
-    : `<p class="cart-empty">Este pedido no tiene productos del catálogo cargados.</p>`;
+    : `<p class="cart-empty">Esta solicitud no tiene productos del catálogo cargados.</p>`;
 
   const mensajeHtml = pedido.mensaje
     ? `<div class="historial-mensaje-block">
@@ -57,7 +57,7 @@ function renderHistorialDetail(pedido) {
     : "";
 
   els.historialDetailBody.innerHTML = `
-    ${historialDetailRowHtml("Pedido", "#" + pedido.numeroPedidoCliente + " — " + formatFechaHora(pedido.fecha, pedido.hora))}
+    ${historialDetailRowHtml("Solicitud", "#" + pedido.numeroPedidoCliente + " — " + formatFechaHora(pedido.fecha, pedido.hora))}
     ${historialDetailRowHtml("Cliente", nombreCompleto)}
     ${historialDetailRowHtml("Entidad", pedido.entidad)}
     ${historialDetailRowHtml("Necesita factura", pedido.necesitaFactura ? "Sí" : "No")}
@@ -106,16 +106,16 @@ function cargarPedidoEnCarrito(pedido) {
 
   let mensaje = pedido.mensaje || "";
   if (noEncontrados.length > 0) {
-    const aviso = "Productos de este pedido que ya no están en el catálogo actual: " +
+    const aviso = "Productos de esta solicitud que ya no están en el catálogo actual: " +
       noEncontrados.map((i) => `${i.nombre} (cantidad ${i.cantidad})`).join(", ");
     mensaje = mensaje ? mensaje + "\n\n" + aviso : aviso;
   }
   els.cartMensaje.value = mensaje;
 
   editingOrderId = pedido.orderId;
-  els.cartTitle.textContent = "Editando pedido #" + pedido.numeroPedidoCliente;
-  els.sendOrderBtn.textContent = "Editar y enviar pedido";
-  els.cartFab.textContent = "Pedido " + pedido.numeroPedidoCliente;
+  els.cartTitle.textContent = "Editando solicitud #" + pedido.numeroPedidoCliente;
+  els.sendOrderBtn.textContent = "Editar y enviar solicitud";
+  els.cartFab.textContent = "Solicitud " + pedido.numeroPedidoCliente;
 
   Object.keys(cart).forEach((key) => {
     updateCartIndicator(key);
