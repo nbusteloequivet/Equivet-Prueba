@@ -568,7 +568,16 @@ function setupWhatsappFormatter(input) {
   input.addEventListener("input", () => {
     const valorPrevio = input.value;
     const cursorPrevio = input.selectionStart == null ? valorPrevio.length : input.selectionStart;
-    const digitosAntesDelCursor = soloDigitos(valorPrevio.slice(0, cursorPrevio)).length;
+    const prefijoPrevio = valorPrevio.slice(0, cursorPrevio);
+    const digitosAntesDelCursor = soloDigitos(prefijoPrevio).length;
+    // Si el cursor ya había pasado el "+" inicial (aunque todavía no
+    // haya ningún dígito escrito después) — distingue "+" con el cursor
+    // recién puesto después del signo de "cursor al principio de todo,
+    // antes incluso del +". Sin esto, apenas se escribía el "+" solo, el
+    // cursor volvía a la posición 0 (antes del +) y la SIGUIENTE tecla
+    // se insertaba delante del signo en vez de después — por eso el "+"
+    // desaparecía al escribir el primer número.
+    const cursorPasoElMas = prefijoPrevio.includes("+");
 
     const formateado = formatearWhatsappParaMostrar(valorPrevio);
     input.value = formateado;
@@ -578,7 +587,7 @@ function setupWhatsappFormatter(input) {
     // cada tecla, haciendo imposible corregir algo en el medio.
     let nuevaPosicion = formateado.length;
     if (digitosAntesDelCursor === 0) {
-      nuevaPosicion = 0;
+      nuevaPosicion = cursorPasoElMas ? 1 : 0;
     } else {
       let vistos = 0;
       for (let i = 0; i < formateado.length; i++) {
