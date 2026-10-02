@@ -237,11 +237,18 @@ async function submitResetPassword() {
       return;
     }
 
+    // El servidor ya creó la sesión junto con el cambio de contraseña
+    // (mismo mecanismo que verificarCuentaYLoguear) — se entra logueado
+    // de una, sin pedirle al cliente que vuelva a escribir la contraseña
+    // que recién acaba de elegir.
     resetToken = null;
     els.resetPassword.value = "";
-    els.loginEmail.value = data.email || "";
-    showAccountView("login");
-    showAccountStatus(els.loginStatus, "Contraseña actualizada — iniciá sesión con la nueva.", "success");
+    session = { token: data.token, nombre: data.nombre, apellido: data.apellido, email: data.email };
+    saveSessionToStorage(session);
+    autocompletarDatosCliente();
+    updateAccountButton();
+    closeModalEl(els.accountModal);
+    scrollToTop();
   } catch (err) {
     console.error("Error al restablecer la contraseña:", err);
     showAccountStatus(els.resetStatus, "No pudimos conectar — probá de nuevo en un momento.", "error");
