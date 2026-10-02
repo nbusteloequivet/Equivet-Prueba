@@ -15,7 +15,7 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_AR">
 <meta property="og:title" content="EquiVet — Laboratorio de Reproducción Equina">
-<meta property="og:description" content="Catálogo de productos y pedidos de cotización de EquiVet, laboratorio de reproducción equina en Los Cardales, Buenos Aires.">
+<meta property="og:description" content="Catálogo de productos y solicitudes de presupuesto de EquiVet, laboratorio de reproducción equina en Los Cardales, Buenos Aires.">
 <meta property="og:url" content="https://equivet.ar/">
 <meta property="og:image" content="https://equivet.ar/assets/logo-equivet.jpg">
 
@@ -61,7 +61,7 @@
       <span class="brand-emblem">
         <img id="brand-logo" src="" alt="Logo EquiVet">
       </span>
-      <p class="brand-sub" id="lab-sub">Armá tu pedido y te contactamos para coordinarlo</p>
+      <p class="brand-sub" id="lab-sub">Armá tu presupuesto y te contactamos para coordinarlo</p>
     </div>
   </div>
 
@@ -88,6 +88,13 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="notice-24h-wrap">
+    <p class="notice-24h">
+      Si no recibís tu presupuesto por mail dentro de las 24&nbsp;hs, escribinos por
+      <a id="notice-24h-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>.
+    </p>
   </div>
 
   <div class="filter-row">
@@ -186,9 +193,10 @@
     <button class="modal-close" data-close-modal="cart-modal" aria-label="Cerrar">✕</button>
     <div class="cart-modal-inner">
       <h2 id="cart-title">Mi presupuesto</h2>
+      <p class="cart-modal-subtitle">Estás armando una solicitud de cotización, no una compra.</p>
 
       <div id="cart-items" class="cart-items"></div>
-      <p id="cart-empty" class="cart-empty" hidden>Todavía no agregaste productos del catálogo. Si no encontrás lo que buscás, contanos qué necesitás en "Mensaje adicional" y enviá el pedido igual.</p>
+      <p id="cart-empty" class="cart-empty" hidden>Todavía no agregaste productos del catálogo. Si no encontrás lo que buscás, contanos qué necesitás en "Mensaje adicional" y enviá la solicitud igual.</p>
       <button id="add-product-btn" class="cart-add-product-btn" type="button">+ Agregar producto</button>
 
       <div class="cart-form">
@@ -229,11 +237,12 @@
       <div id="cart-status" class="cart-status" hidden></div>
 
       <div class="cart-send">
-        <button id="send-order-btn" class="btn-provider" type="button">Enviar pedido</button>
+        <p class="cart-send-note">Esto envía una <strong>solicitud de presupuesto</strong>, no una compra ni un pedido confirmado. No se realiza ningún cobro: te contactamos con el presupuesto y la disponibilidad antes de coordinar nada.</p>
+        <button id="send-order-btn" class="btn-provider" type="button">Solicitar presupuesto</button>
       </div>
 
       <div class="cart-actions">
-        <button id="clear-cart-btn" class="btn-secondary" type="button">Vaciar pedido</button>
+        <button id="clear-cart-btn" class="btn-secondary" type="button">Vaciar presupuesto</button>
       </div>
     </div>
   </div>
@@ -251,7 +260,10 @@
             <input id="login-email" type="email" autocomplete="email">
           </label>
           <label>Contraseña
-            <input id="login-password" type="password" autocomplete="current-password">
+            <div class="password-field">
+              <input id="login-password" type="password" autocomplete="current-password">
+              <button type="button" class="password-toggle-btn" aria-label="Mostrar contraseña">Mostrar</button>
+            </div>
           </label>
         </div>
         <div id="login-status" class="cart-status" hidden></div>
@@ -272,7 +284,10 @@
             <input id="registro-email" type="email" autocomplete="email">
           </label>
           <label>Contraseña
-            <input id="registro-password" type="password" autocomplete="new-password">
+            <div class="password-field">
+              <input id="registro-password" type="password" autocomplete="new-password">
+              <button type="button" class="password-toggle-btn" aria-label="Mostrar contraseña">Mostrar</button>
+            </div>
           </label>
         </div>
         <div id="registro-status" class="cart-status" hidden></div>
@@ -294,7 +309,10 @@
       <div id="account-view-reset" hidden>
         <div class="account-fields">
           <label>Nueva contraseña
-            <input id="reset-password" type="password" autocomplete="new-password">
+            <div class="password-field">
+              <input id="reset-password" type="password" autocomplete="new-password">
+              <button type="button" class="password-toggle-btn" aria-label="Mostrar contraseña">Mostrar</button>
+            </div>
           </label>
         </div>
         <div id="reset-status" class="cart-status" hidden></div>
@@ -318,22 +336,23 @@
     <button class="modal-close" data-close-modal="historial-modal" aria-label="Cerrar">✕</button>
     <div class="cart-modal-inner">
       <h2 id="historial-title">Mi historial</h2>
+      <p class="cart-modal-subtitle">Tus solicitudes de presupuesto anteriores — todavía no son compras confirmadas.</p>
 
       <div id="historial-view-guest" class="historial-guest-prompt" hidden>
-        <p>Iniciá sesión o creá una cuenta para ver el historial completo de los pedidos de presupuesto que hiciste.</p>
+        <p>Iniciá sesión o creá una cuenta para ver el historial completo de las solicitudes de presupuesto que hiciste.</p>
         <button id="historial-guest-login-btn" class="btn-provider" type="button">Iniciar sesión / Crear cuenta</button>
       </div>
 
       <div id="historial-view-list">
         <div id="historial-list" class="historial-list"></div>
-        <p id="historial-empty" class="cart-empty" hidden>Todavía no hiciste ningún pedido.</p>
+        <p id="historial-empty" class="cart-empty" hidden>Todavía no hiciste ninguna solicitud de presupuesto.</p>
       </div>
 
       <div id="historial-view-detail" hidden>
-        <button id="historial-back-btn" class="link-btn" type="button">← Volver a mis pedidos</button>
+        <button id="historial-back-btn" class="link-btn" type="button">← Volver a mis solicitudes</button>
         <div id="historial-detail-body" class="historial-detail-body"></div>
         <div id="historial-edit-status" class="cart-status" hidden></div>
-        <button id="historial-edit-btn" class="btn-provider" type="button">Editar pedido</button>
+        <button id="historial-edit-btn" class="btn-provider" type="button">Editar solicitud</button>
       </div>
     </div>
   </div>
