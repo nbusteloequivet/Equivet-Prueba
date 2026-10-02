@@ -32,7 +32,8 @@ function clearCart() {
   editingOrderId = null;
   els.cartTitle.textContent = "Mi presupuesto";
   els.sendOrderBtn.textContent = "Solicitar presupuesto";
-  els.cartFab.textContent = "Presupuesto rápido";
+  els.cartFab.textContent = "Nuevo presupuesto";
+  els.cancelEditBtn.hidden = true;
   els.cartFactura.checked = false;
   syncFacturaButtons();
   [els.cartNombre, els.cartApellido, els.cartWhatsapp, els.cartEmail].forEach((input) => input.classList.remove("field-error"));
