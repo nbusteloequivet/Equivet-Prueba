@@ -116,6 +116,7 @@ function cargarPedidoEnCarrito(pedido) {
   els.cartTitle.textContent = "Editando solicitud #" + pedido.numeroPedidoCliente;
   els.sendOrderBtn.textContent = "Editar y enviar solicitud";
   els.cartFab.textContent = "Solicitud " + pedido.numeroPedidoCliente;
+  els.cancelEditBtn.hidden = false;
 
   Object.keys(cart).forEach((key) => {
     updateCartIndicator(key);
