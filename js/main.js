@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupContactFab();
   setupCompanyContact();
   setupFacturaToggle();
+  setupPasswordToggles();
 
   session = loadSessionFromStorage();
   updateAccountButton();
