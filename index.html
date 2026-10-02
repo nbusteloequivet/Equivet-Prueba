@@ -174,7 +174,7 @@
     Mi historial
   </button>
   <button id="cart-fab" class="fab fab-secondary" type="button" aria-haspopup="dialog">
-    Presupuesto rápido
+    Nuevo presupuesto
   </button>
   <button id="contact-fab" class="fab fab-secondary" type="button">
     Contacto
@@ -193,7 +193,6 @@
     <button class="modal-close" data-close-modal="cart-modal" aria-label="Cerrar">✕</button>
     <div class="cart-modal-inner">
       <h2 id="cart-title">Mi presupuesto</h2>
-      <p class="cart-modal-subtitle">Estás armando una solicitud de cotización, no una compra.</p>
 
       <div id="cart-items" class="cart-items"></div>
       <p id="cart-empty" class="cart-empty" hidden>Todavía no agregaste productos del catálogo. Si no encontrás lo que buscás, contanos qué necesitás en "Mensaje adicional" y enviá la solicitud igual.</p>
@@ -241,6 +240,8 @@
         <button id="send-order-btn" class="btn-provider" type="button">Solicitar presupuesto</button>
       </div>
 
+      <button id="cancel-edit-btn" class="btn-secondary cancel-edit-btn" type="button" hidden>No editar presupuesto</button>
+
       <div class="cart-actions">
         <button id="clear-cart-btn" class="btn-secondary" type="button">Vaciar presupuesto</button>
       </div>
@@ -260,10 +261,7 @@
             <input id="login-email" type="email" autocomplete="email">
           </label>
           <label>Contraseña
-            <div class="password-field">
-              <input id="login-password" type="password" autocomplete="current-password">
-              <button type="button" class="password-toggle-btn" aria-label="Mostrar contraseña">Mostrar</button>
-            </div>
+            <input id="login-password" type="text" autocomplete="current-password">
           </label>
         </div>
         <div id="login-status" class="cart-status" hidden></div>
@@ -284,10 +282,7 @@
             <input id="registro-email" type="email" autocomplete="email">
           </label>
           <label>Contraseña
-            <div class="password-field">
-              <input id="registro-password" type="password" autocomplete="new-password">
-              <button type="button" class="password-toggle-btn" aria-label="Mostrar contraseña">Mostrar</button>
-            </div>
+            <input id="registro-password" type="text" autocomplete="new-password">
           </label>
         </div>
         <div id="registro-status" class="cart-status" hidden></div>
@@ -309,10 +304,7 @@
       <div id="account-view-reset" hidden>
         <div class="account-fields">
           <label>Nueva contraseña
-            <div class="password-field">
-              <input id="reset-password" type="password" autocomplete="new-password">
-              <button type="button" class="password-toggle-btn" aria-label="Mostrar contraseña">Mostrar</button>
-            </div>
+            <input id="reset-password" type="text" autocomplete="new-password">
           </label>
         </div>
         <div id="reset-status" class="cart-status" hidden></div>
@@ -336,7 +328,6 @@
     <button class="modal-close" data-close-modal="historial-modal" aria-label="Cerrar">✕</button>
     <div class="cart-modal-inner">
       <h2 id="historial-title">Mi historial</h2>
-      <p class="cart-modal-subtitle">Tus solicitudes de presupuesto anteriores — todavía no son compras confirmadas.</p>
 
       <div id="historial-view-guest" class="historial-guest-prompt" hidden>
         <p>Iniciá sesión o creá una cuenta para ver el historial completo de las solicitudes de presupuesto que hiciste.</p>
